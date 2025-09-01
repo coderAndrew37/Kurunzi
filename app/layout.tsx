@@ -4,6 +4,7 @@ import { Geist, Geist_Mono, Inter } from "next/font/google";
 import Footer from "./Footer";
 import "./globals.css";
 import NavBar from "./NavBar";
+import TopAdBanner from "./TopAdBanner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -36,6 +37,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        <TopAdBanner />
         <NavBar />
         <main className="container mx-auto mt-10 px-4">{children}</main>
         {/* <ThemePanel /> */}

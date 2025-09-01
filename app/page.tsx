@@ -1,7 +1,16 @@
 // app/page.tsx
 import HeroSection from "./components/Hero";
 import BreakingNewsTicker from "./components/BreakingNewsTicker";
-import NewsSection from "./components/NewsSection";
+import SectionWithLead from "./components/SectionWithLead";
+
+// --- Data ---
+const politicsLead = {
+  id: 0,
+  title: "President unveils new economic plan",
+  href: "#",
+  img: "/images/politics-lead.jpg",
+  summary: "A bold roadmap aimed at job creation and tackling inflation.",
+};
 
 const politicsStories = [
   {
@@ -23,6 +32,14 @@ const politicsStories = [
     img: "/images/politics3.jpg",
   },
 ];
+
+const businessLead = {
+  id: 0,
+  title: "Tech industry faces global supply chain crisis",
+  href: "#",
+  img: "/images/business-lead.jpg",
+  summary: "Experts warn disruptions could last for years, impacting growth.",
+};
 
 const businessStories = [
   {
@@ -52,26 +69,40 @@ const trendingStories = [
   "Floods displace thousands in coastal region",
 ];
 
+// --- Page ---
 export default function Home() {
   return (
     <div className="flex flex-col">
       {/* Breaking News Bar */}
       <BreakingNewsTicker />
 
-      {/* Full-width Hero Section */}
+      {/* Hero Section */}
       <HeroSection />
 
-      {/* Main Grid: News + Sidebar */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 max-w-7xl mx-auto w-full px-4 py-6">
-        {/* Main Content */}
+      {/* Politics Section */}
+      <SectionWithLead
+        sectionTitle="Politics"
+        leadStory={politicsLead}
+        stories={politicsStories}
+      />
+
+      {/* Business Section */}
+      <SectionWithLead
+        sectionTitle="Business"
+        leadStory={businessLead}
+        stories={businessStories}
+      />
+
+      {/* Sidebar + Main Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 max-w-7xl mx-auto w-full px-4 py-12">
+        {/* Main (can hold more sections in future) */}
         <div className="lg:col-span-2 flex flex-col gap-8">
-          <NewsSection title="Politics" stories={politicsStories} />
-          <NewsSection title="Business" stories={businessStories} />
+          {/* You could drop in Culture, Sports, Lifestyle, etc. here */}
         </div>
 
         {/* Sidebar */}
         <aside className="flex flex-col gap-6">
-          {/* Trending Stories */}
+          {/* Trending */}
           <div className="bg-gray-50 border rounded-lg p-4">
             <h2 className="text-lg font-bold mb-3 border-b pb-2">Trending</h2>
             <ul className="space-y-2">
@@ -83,7 +114,7 @@ export default function Home() {
             </ul>
           </div>
 
-          {/* Ad Slots */}
+          {/* Ads */}
           <div className="w-full h-80 bg-gray-200 flex items-center justify-center text-gray-500 rounded-lg">
             Sidebar Ad (300x600)
           </div>
