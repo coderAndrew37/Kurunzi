@@ -199,7 +199,7 @@ export default function Header() {
           <div className="flex items-center space-x-4">
             {/* FIFA World Cup 2026 Link */}
             <Link
-              href="https://worldcup.kurunzinews.com"
+              href="https://worldcup.kurunzi.com"
               target="_blank"
               className="flex items-center text-xs font-bold text-orange-600 hover:text-orange-700"
             >
