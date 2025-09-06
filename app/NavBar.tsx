@@ -10,7 +10,7 @@ import {
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
 import { cn } from "@/lib/utils";
-import { Menu, Search, X } from "lucide-react";
+import { Menu, Search, X, Youtube, Calendar, Star } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
@@ -27,74 +27,161 @@ export default function Header() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // Popular search tags for SEO
+  const popularTags = [
+    "William Ruto",
+    "Rigathi Gachagua",
+    "Raila Odinga",
+    "Nairobi",
+    "Mombasa",
+    "Kisumu",
+    "Elections 2023",
+    "Economy",
+    "Sports",
+  ];
+
   const menuItems = [
     {
-      title: "Top Stories",
-      href: "/top-stories",
+      title: "News",
+      href: "/news",
       subItems: [
-        { title: "All Top Stories", href: "/top-stories" },
-        { title: "Breaking News", href: "/top-stories/breaking" },
-        { title: "Most Read", href: "/top-stories/most-read" },
+        { title: "Breaking News", href: "/news/breaking" },
+        { title: "National", href: "/news/national" },
+        { title: "International", href: "/news/international" },
+        { title: "Most Read", href: "/news/most-read" },
+        { title: "Trending", href: "/news/trending" },
       ],
     },
     {
       title: "Politics",
       href: "/politics",
       subItems: [
-        { title: "Politics News", href: "/politics" },
+        { title: "Government", href: "/politics/government" },
         { title: "Elections", href: "/politics/elections" },
         { title: "Policy", href: "/politics/policy" },
-        { title: "Government", href: "/politics/government" },
+        { title: "Political Parties", href: "/politics/parties" },
+        { title: "Analysis", href: "/politics/analysis" },
       ],
     },
     {
-      title: "Investigations",
-      href: "/investigations",
+      title: "Diplomacy",
+      href: "/diplomacy",
       subItems: [
-        { title: "All Investigations", href: "/investigations" },
-        { title: "Corruption", href: "/investigations/corruption" },
-        { title: "Crime", href: "/investigations/crime" },
-        { title: "Corporate", href: "/investigations/corporate" },
+        { title: "Foreign Affairs", href: "/diplomacy/foreign-affairs" },
+        {
+          title: "International Relations",
+          href: "/diplomacy/international-relations",
+        },
+        { title: "Embassy News", href: "/diplomacy/embassy" },
+        { title: "Treaties & Agreements", href: "/diplomacy/treaties" },
+      ],
+    },
+    {
+      title: "Court & Crime",
+      href: "/court-crime",
+      subItems: [
+        { title: "Court Cases", href: "/court-crime/cases" },
+        { title: "Crime Reports", href: "/court-crime/reports" },
+        { title: "Legal Analysis", href: "/court-crime/analysis" },
+        { title: "Police Updates", href: "/court-crime/police" },
+      ],
+    },
+    {
+      title: "Counties",
+      href: "/counties",
+      subItems: [
+        { title: "Nairobi", href: "/counties/nairobi" },
+        { title: "Mombasa", href: "/counties/mombasa" },
+        { title: "Kisumu", href: "/counties/kisumu" },
+        { title: "All Counties", href: "/counties" },
+        { title: "Devolution", href: "/counties/devolution" },
+      ],
+    },
+    {
+      title: "Health",
+      href: "/health",
+      subItems: [
+        { title: "Healthcare News", href: "/health/news" },
+        { title: "Medical Research", href: "/health/research" },
+        { title: "Public Health", href: "/health/public" },
+        { title: "Wellness", href: "/health/wellness" },
       ],
     },
     {
       title: "Business",
       href: "/business",
       subItems: [
-        { title: "Business News", href: "/business" },
         { title: "Markets", href: "/business/markets" },
         { title: "Finance", href: "/business/finance" },
         { title: "Tech", href: "/business/tech" },
-      ],
-    },
-    {
-      title: "Features",
-      href: "/features",
-      subItems: [
-        { title: "All Features", href: "/features" },
-        { title: "Human Interest", href: "/features/human-interest" },
-        { title: "Culture", href: "/features/culture" },
-        { title: "Lifestyle", href: "/features/lifestyle" },
+        { title: "Agriculture", href: "/business/agriculture" },
+        { title: "Entrepreneurship", href: "/business/entrepreneurship" },
       ],
     },
     {
       title: "Sports",
       href: "/sports",
       subItems: [
-        { title: "Sports News", href: "/sports" },
-        { title: "Football", href: "/sports/football" },
+        {
+          title: "Football",
+          href: "/sports/football",
+          subItems: [
+            { title: "KPL", href: "/sports/football/kpl" },
+            { title: "FKF Cup", href: "/sports/football/fkf-cup" },
+            { title: "EPL", href: "/sports/football/epl" },
+            { title: "FA Cup", href: "/sports/football/fa-cup" },
+            { title: "Serie A", href: "/sports/football/serie-a" },
+            { title: "Bundesliga", href: "/sports/football/bundesliga" },
+            { title: "Ligue 1", href: "/sports/football/ligue-1" },
+            { title: "La Liga", href: "/sports/football/la-liga" },
+            { title: "PSL", href: "/sports/football/psl" },
+            { title: "UEFA Champions League", href: "/sports/football/ucl" },
+            { title: "CAF Champions League", href: "/sports/football/caf-cl" },
+            { title: "Europa League", href: "/sports/football/europa" },
+            {
+              title: "UEFA Conference League",
+              href: "/sports/football/uefa-conference",
+            },
+            {
+              title: "CAF Confederations Cup",
+              href: "/sports/football/caf-confed",
+            },
+            { title: "CHAN", href: "/sports/football/chan" },
+            { title: "AFCON", href: "/sports/football/afcon" },
+            { title: "Fixtures & Results", href: "/sports/football/fixtures" },
+            { title: "Tables", href: "/sports/football/tables" },
+          ],
+        },
         { title: "Athletics", href: "/sports/athletics" },
         { title: "Basketball", href: "/sports/basketball" },
+        { title: "Golf", href: "/sports/golf" },
+        { title: "Tennis", href: "/sports/tennis" },
+        { title: "Rugby", href: "/sports/rugby" },
+        { title: "Volleyball", href: "/sports/volleyball" },
+        { title: "Motorsport", href: "/sports/motorsport" },
+        { title: "Formula One", href: "/sports/formula-one" },
+        { title: "Live Scores", href: "/sports/live-scores", isLive: true },
+      ],
+    },
+    {
+      title: "Lifestyle",
+      href: "/lifestyle",
+      subItems: [
+        { title: "Celebrity Watch", href: "/lifestyle/celebrity" },
+        { title: "Fashion", href: "/lifestyle/fashion" },
+        { title: "Entertainment", href: "/lifestyle/entertainment" },
+        { title: "Relationships", href: "/lifestyle/relationships" },
+        { title: "Culture", href: "/lifestyle/culture" },
       ],
     },
     {
       title: "Opinion",
       href: "/opinion",
       subItems: [
-        { title: "All Opinion", href: "/opinion" },
         { title: "Editorials", href: "/opinion/editorials" },
         { title: "Columns", href: "/opinion/columns" },
         { title: "Letters", href: "/opinion/letters" },
+        { title: "Analysis", href: "/opinion/analysis" },
       ],
     },
   ];
@@ -107,7 +194,48 @@ export default function Header() {
       )}
     >
       <div className="container mx-auto px-4">
-        {/* Top Bar */}
+        {/* Top Utility Bar */}
+        <div className="flex items-center justify-between pb-2 mb-2 border-b border-gray-200">
+          <div className="flex items-center space-x-4">
+            {/* FIFA World Cup 2026 Link */}
+            <Link
+              href="https://worldcup.kurunzinews.com"
+              target="_blank"
+              className="flex items-center text-xs font-bold text-orange-600 hover:text-orange-700"
+            >
+              <Calendar className="h-3 w-3 mr-1" />
+              2026 FIFA World Cup
+            </Link>
+
+            {/* YouTube Channel Link */}
+            <Link
+              href="https://www.youtube.com/@KurunziNews"
+              target="_blank"
+              className="flex items-center text-xs font-bold text-red-600 hover:text-red-700"
+            >
+              <Youtube className="h-3 w-3 mr-1" />
+              Our YouTube Channel
+            </Link>
+          </div>
+
+          {/* Popular Tags for SEO */}
+          <div className="hidden md:flex items-center space-x-2">
+            <span className="text-xs text-gray-500">Trending:</span>
+            <div className="flex space-x-1">
+              {popularTags.slice(0, 3).map((tag, index) => (
+                <Link
+                  key={index}
+                  href={`/search?q=${encodeURIComponent(tag)}`}
+                  className="text-xs text-blue-600 hover:underline"
+                >
+                  {tag}
+                </Link>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Main Nav Bar */}
         <div className="flex items-center justify-between">
           {/* Logo */}
           <Link
@@ -129,18 +257,60 @@ export default function Header() {
                       {item.title}
                     </NavigationMenuTrigger>
                     <NavigationMenuContent>
-                      <div className="w-[400px] p-4">
-                        <div className="grid grid-cols-2 gap-3">
+                      <div
+                        className={cn(
+                          "p-4",
+                          item.title === "Sports" ? "w-[800px]" : "w-[400px]"
+                        )}
+                      >
+                        <div
+                          className={cn(
+                            "grid gap-3",
+                            item.title === "Sports"
+                              ? "grid-cols-3"
+                              : "grid-cols-2"
+                          )}
+                        >
                           {item.subItems.map((subItem) => (
-                            <Link
-                              key={subItem.title}
-                              href={subItem.href}
-                              className="block p-3 rounded-lg hover:bg-slate-50 transition-colors"
-                            >
-                              <p className="font-medium text-slate-900">
-                                {subItem.title}
-                              </p>
-                            </Link>
+                            <div key={subItem.title}>
+                              <Link
+                                href={subItem.href}
+                                className={cn(
+                                  "block p-3 rounded-lg hover:bg-slate-50 transition-colors",
+                                  subItem.isLive
+                                    ? "bg-red-50 hover:bg-red-100"
+                                    : ""
+                                )}
+                              >
+                                <p
+                                  className={cn(
+                                    "font-medium text-slate-900",
+                                    subItem.isLive
+                                      ? "text-red-600 flex items-center"
+                                      : ""
+                                  )}
+                                >
+                                  {subItem.isLive && (
+                                    <Star className="h-4 w-4 mr-1 fill-red-600" />
+                                  )}
+                                  {subItem.title}
+                                </p>
+                                {/* Render nested subitems for Football */}
+                                {subItem.subItems && (
+                                  <div className="mt-2 pl-2 border-l border-gray-200">
+                                    {subItem.subItems.map((nestedItem) => (
+                                      <Link
+                                        key={nestedItem.title}
+                                        href={nestedItem.href}
+                                        className="block py-1 text-sm text-slate-600 hover:text-blue-600"
+                                      >
+                                        {nestedItem.title}
+                                      </Link>
+                                    ))}
+                                  </div>
+                                )}
+                              </Link>
+                            </div>
                           ))}
                         </div>
                       </div>
@@ -199,6 +369,18 @@ export default function Header() {
                 className="pl-10 pr-4 py-2 w-full rounded-full"
               />
             </div>
+            {/* Popular search suggestions */}
+            <div className="flex flex-wrap gap-2 mt-2">
+              {popularTags.map((tag, index) => (
+                <Link
+                  key={index}
+                  href={`/search?q=${encodeURIComponent(tag)}`}
+                  className="text-xs bg-gray-100 hover:bg-gray-200 px-2 py-1 rounded-full"
+                >
+                  {tag}
+                </Link>
+              ))}
+            </div>
           </div>
         )}
 
@@ -216,13 +398,28 @@ export default function Header() {
                   </Link>
                   <div className="pl-4 mt-1 grid gap-2 border-l border-slate-200 ml-2">
                     {item.subItems.map((subItem) => (
-                      <Link
-                        key={subItem.title}
-                        href={subItem.href}
-                        className="block py-2 text-sm text-slate-600 hover:text-blue-600"
-                      >
-                        {subItem.title}
-                      </Link>
+                      <div key={subItem.title}>
+                        <Link
+                          href={subItem.href}
+                          className="block py-2 text-sm text-slate-600 hover:text-blue-600"
+                        >
+                          {subItem.title}
+                        </Link>
+                        {/* Nested subitems for mobile */}
+                        {subItem.subItems && (
+                          <div className="pl-4 mt-1 grid gap-1 border-l border-slate-200 ml-2">
+                            {subItem.subItems.map((nestedItem) => (
+                              <Link
+                                key={nestedItem.title}
+                                href={nestedItem.href}
+                                className="block py-1 text-xs text-slate-500 hover:text-blue-600"
+                              >
+                                {nestedItem.title}
+                              </Link>
+                            ))}
+                          </div>
+                        )}
+                      </div>
                     ))}
                   </div>
                 </div>

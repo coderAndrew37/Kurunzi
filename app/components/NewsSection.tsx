@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { generateSlug } from "./generateSlug";
 
 interface Story {
   id: number;
@@ -16,14 +17,6 @@ interface NewsSectionProps {
   showAd?: boolean;
   adPosition?: number;
 }
-
-// Function to generate slug from title
-const generateSlug = (title: string) => {
-  return title
-    .toLowerCase()
-    .replace(/[^\w ]+/g, "")
-    .replace(/ +/g, "-");
-};
 
 export default function NewsSection({
   title,
