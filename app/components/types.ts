@@ -4,6 +4,15 @@ export interface Author {
   avatar?: string;
 }
 
+export interface Topic {
+  id: number;
+  name: string;
+  description: string;
+  articleCount: number;
+  trendDirection: "up" | "down" | "neutral";
+  trendPercentage: number;
+}
+
 export interface Article {
   id: number;
   title: string;
