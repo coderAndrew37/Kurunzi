@@ -150,7 +150,7 @@ export default function Footer() {
                 "About Us",
                 "Contact",
                 "Careers",
-                "Advertise",
+                "Advertise With Us",
                 "Privacy Policy",
                 "Terms of Service",
                 "Accessibility",

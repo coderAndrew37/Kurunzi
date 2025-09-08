@@ -1,18 +1,13 @@
 "use client";
 import Image from "next/image";
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
+import { Story } from "./types";
 
-// Define the Story interface
-interface Story {
-  id: number;
-  title: string;
-  img: string;
-  category?: string;
-  date?: string;
-  excerpt?: string;
-  isVideo?: boolean;
-  duration?: string;
+interface SectionWithLeadProps {
+  sectionTitle: string;
+  leadStory: Story;
+  stories: Story[];
 }
 
 // Generate slug from title
@@ -22,123 +17,6 @@ const generateSlug = (title: string) => {
     .replace(/[^\w ]+/g, "")
     .replace(/ +/g, "-");
 };
-
-// Dummy data for our news section
-const dummyStories: Story[] = [
-  {
-    id: 1,
-    title: "Global Summit Addresses Climate Change Emergency",
-    img: "https://images.unsplash.com/photo-1611273426858-450d8e3c9fce?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-    category: "World News",
-    date: "2 hours ago",
-    excerpt:
-      "World leaders gather to discuss urgent action on climate change as temperatures continue to rise globally.",
-    isVideo: true,
-    duration: "2:45",
-  },
-  {
-    id: 2,
-    title: "Tech Giant Unveils Revolutionary AI Assistant",
-    img: "https://images.unsplash.com/photo-1573164713714-d95e436ab8d6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-    category: "Technology",
-    date: "5 hours ago",
-    excerpt:
-      "New AI assistant can understand and respond to complex human emotions and needs.",
-    isVideo: false,
-  },
-  {
-    id: 3,
-    title: "Stock Markets Reach All-Time High",
-    img: "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-    category: "Finance",
-    date: "1 day ago",
-    excerpt:
-      "Major indices surge as investor confidence grows amid positive economic indicators.",
-    isVideo: true,
-    duration: "1:30",
-  },
-  {
-    id: 4,
-    title: "New Breakthrough in Cancer Treatment Research",
-    img: "https://images.unsplash.com/photo-1559757148-5c350d0d3c56?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-    category: "Health",
-    date: "3 hours ago",
-    excerpt:
-      "Scientists discover promising new approach that could significantly improve cancer treatment outcomes.",
-  },
-  {
-    id: 5,
-    title: "Major Film Festival Announces Award Winners",
-    img: "https://images.unsplash.com/photo-1489599102910-59206b8ca314?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-    category: "Entertainment",
-    date: "6 hours ago",
-    excerpt:
-      "Independent films dominate this year's awards ceremony with several surprise wins.",
-  },
-  {
-    id: 6,
-    title: "Olympic Athletes Arrive for Training Camp",
-    img: "https://images.unsplash.com/photo-1461896836934-ffe607ba8211?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-    category: "Sports",
-    date: "8 hours ago",
-    excerpt:
-      "Team begins intensive preparation for upcoming games with new coaching staff.",
-  },
-  {
-    id: 7,
-    title: "Urban Farming Initiative Transforms City Spaces",
-    img: "https://images.unsplash.com/photo-1591871937571-5c7aad4a8e53?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-    category: "Environment",
-    date: "1 day ago",
-    excerpt:
-      "Local communities are turning unused urban areas into productive gardens and farms.",
-  },
-  {
-    id: 8,
-    title: "New Smartphone Features Revolutionary Camera Technology",
-    img: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-    category: "Tech",
-    date: "2 days ago",
-    excerpt:
-      "Latest flagship device boasts camera capabilities that rival professional equipment.",
-  },
-  {
-    id: 9,
-    title: "Historic Peace Agreement Signed Between Nations",
-    img: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-    category: "Politics",
-    date: "1 day ago",
-    excerpt:
-      "After decades of conflict, two nations sign landmark agreement brokered by international mediators.",
-  },
-  {
-    id: 10,
-    title: "AI Art Exhibition Opens to Critical Acclaim",
-    img: "https://images.unsplash.com/photo-1541961017774-22349e4a1262?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-    category: "Art",
-    date: "4 hours ago",
-    excerpt:
-      "Gallery showcases works created entirely by artificial intelligence algorithms.",
-  },
-  {
-    id: 11,
-    title: "Scientists Discover New Species in Deep Ocean",
-    img: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-    category: "Science",
-    date: "2 days ago",
-    excerpt:
-      "Marine biologists identify previously unknown creatures living in the deepest parts of the ocean.",
-  },
-  {
-    id: 12,
-    title: "Global Music Festival Announces Lineup",
-    img: "https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-    category: "Music",
-    date: "12 hours ago",
-    excerpt:
-      "Massive event will feature performances from top artists across multiple genres and countries.",
-  },
-];
 
 // Carousel component for the left column
 function ImageCarousel({ stories }: { stories: Story[] }) {
@@ -226,10 +104,11 @@ function ImageCarousel({ stories }: { stories: Story[] }) {
 }
 
 // Main news section component
-export default function MSNNewsSection() {
+export default function SectionWithLead({
+  sectionTitle,
+  stories,
+}: SectionWithLeadProps) {
   // In a real app, you would receive these as props
-  const title = "Top Stories";
-  const stories = dummyStories;
   const showAd = true;
   const adPosition = 2;
 
@@ -243,7 +122,7 @@ export default function MSNNewsSection() {
     <div className="w-full max-w-7xl mx-auto px-4 py-8 bg-neutral-50">
       {/* Section header */}
       <div className="flex justify-between items-center mb-6 pb-3 border-b border-neutral-300">
-        <h2 className="text-2xl font-bold text-neutral-800">{title}</h2>
+        <h2 className="text-2xl font-bold text-neutral-800">{sectionTitle}</h2>
         <div className="flex space-x-4">
           <button className="text-sm font-medium text-neutral-600 hover:text-blue-600">
             Follow

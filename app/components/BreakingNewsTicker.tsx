@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState, useRef } from "react";
+import { useState } from "react";
 
 const placeholderHeadlines = [
   "Breaking: President announces new economic reforms",
@@ -12,36 +12,6 @@ const placeholderHeadlines = [
 
 export default function BreakingNewsTicker() {
   const [isPaused, setIsPaused] = useState(false);
-  const tickerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (isPaused || !tickerRef.current) return;
-
-    const ticker = tickerRef.current;
-    const contentWidth = ticker.scrollWidth / 2; // Since we duplicated content
-    const animationDuration = contentWidth / 50; // Adjust speed based on content length
-
-    // Reset position when animation ends
-    const handleAnimationIteration = () => {
-      ticker.style.transition = "none";
-      ticker.style.transform = "translateX(0)";
-      // Force reflow
-      ticker.offsetHeight; // eslint-disable-line no-unused-expressions
-      ticker.style.transition = `transform ${animationDuration}s linear infinite`;
-    };
-
-    ticker.style.transition = `transform ${animationDuration}s linear infinite`;
-    ticker.style.transform = `translateX(-${contentWidth}px)`;
-
-    ticker.addEventListener("transitioniteration", handleAnimationIteration);
-
-    return () => {
-      ticker.removeEventListener(
-        "transitioniteration",
-        handleAnimationIteration
-      );
-    };
-  }, [isPaused]);
 
   return (
     <div className="w-full bg-gradient-to-r from-red-600 to-red-700 text-white py-3 overflow-hidden relative shadow-md">
@@ -54,19 +24,15 @@ export default function BreakingNewsTicker() {
 
         {/* Ticker Container */}
         <div
-          className="flex-1 overflow-hidden"
+          className="flex-1 overflow-hidden relative"
           onMouseEnter={() => setIsPaused(true)}
           onMouseLeave={() => setIsPaused(false)}
         >
           <div
-            ref={tickerRef}
-            className="flex whitespace-nowrap"
-            style={{
-              transform: isPaused ? "translateX(0)" : "",
-              transition: isPaused ? "none" : "",
-            }}
+            className={`flex whitespace-nowrap animate-marquee ${
+              isPaused ? "pause" : ""
+            }`}
           >
-            {/* Duplicate content for seamless looping */}
             {[...placeholderHeadlines, ...placeholderHeadlines].map(
               (headline, index) => (
                 <div key={index} className="inline-flex items-center mr-8">
@@ -81,9 +47,27 @@ export default function BreakingNewsTicker() {
         </div>
       </div>
 
-      {/* Gradient fade effects on sides */}
+      {/* Gradient fade effects */}
       <div className="absolute left-0 top-0 bottom-0 w-10 bg-gradient-to-r from-red-600 to-transparent pointer-events-none"></div>
       <div className="absolute right-0 top-0 bottom-0 w-10 bg-gradient-to-l from-red-600 to-transparent pointer-events-none"></div>
+
+      {/* Keyframes styles */}
+      <style jsx>{`
+        @keyframes marquee {
+          0% {
+            transform: translateX(0%);
+          }
+          100% {
+            transform: translateX(-50%);
+          }
+        }
+        .animate-marquee {
+          animation: marquee 30s linear infinite;
+        }
+        .pause {
+          animation-play-state: paused;
+        }
+      `}</style>
     </div>
   );
 }
