@@ -1,23 +1,17 @@
 import {defineField, defineType} from 'sanity'
 
 export default defineType({
-  name: 'post',
-  title: 'Post',
+  name: 'article',
+  title: 'Article',
   type: 'document',
   fields: [
-    defineField({
-      name: 'title',
-      title: 'Title',
-      type: 'string',
-    }),
+    defineField({name: 'title', title: 'Title', type: 'string'}),
+    defineField({name: 'subtitle', title: 'Subtitle', type: 'string'}),
     defineField({
       name: 'slug',
       title: 'Slug',
       type: 'slug',
-      options: {
-        source: 'title',
-        maxLength: 96,
-      },
+      options: {source: 'title', maxLength: 96},
     }),
     defineField({
       name: 'author',
@@ -27,11 +21,9 @@ export default defineType({
     }),
     defineField({
       name: 'mainImage',
-      title: 'Main image',
+      title: 'Main Image',
       type: 'image',
-      options: {
-        hotspot: true,
-      },
+      options: {hotspot: true},
     }),
     defineField({
       name: 'categories',
@@ -40,9 +32,41 @@ export default defineType({
       of: [{type: 'reference', to: {type: 'category'}}],
     }),
     defineField({
+      name: 'tags',
+      title: 'Tags',
+      type: 'array',
+      of: [{type: 'string'}],
+    }),
+    defineField({
+      name: 'excerpt',
+      title: 'Excerpt',
+      type: 'text',
+      rows: 3,
+    }),
+    defineField({
       name: 'publishedAt',
-      title: 'Published at',
+      title: 'Published At',
       type: 'datetime',
+    }),
+    defineField({
+      name: 'readTime',
+      title: 'Read Time (minutes)',
+      type: 'number',
+    }),
+    defineField({
+      name: 'isFeatured',
+      title: 'Featured Article?',
+      type: 'boolean',
+    }),
+    defineField({
+      name: 'isVideo',
+      title: 'Is Video?',
+      type: 'boolean',
+    }),
+    defineField({
+      name: 'duration',
+      title: 'Duration (for video)',
+      type: 'string',
     }),
     defineField({
       name: 'body',
@@ -50,7 +74,6 @@ export default defineType({
       type: 'blockContent',
     }),
   ],
-
   preview: {
     select: {
       title: 'title',

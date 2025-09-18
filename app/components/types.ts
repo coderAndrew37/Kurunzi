@@ -1,9 +1,4 @@
-export interface Author {
-  name: string;
-  role?: string;
-  avatar?: string;
-}
-
+import type { PortableTextBlock } from "sanity";
 export interface Topic {
   id: number;
   name: string;
@@ -13,18 +8,28 @@ export interface Topic {
   trendPercentage: number;
 }
 
-export interface Article {
-  id: number;
+export interface Author {
+  name: string;
+  role?: string;
+  avatar?: string | null;
+}
+
+export interface Story {
+  id: string;
+  slug: string;
   title: string;
-  subtitle?: string;
-  img: string;
-  category: string;
-  date: string;
-  author: Author;
-  content: string;
+  subtitle?: string | null;
+  img: string | null;
+  category?: string | null;
+  date?: string | null;
+  author?: Author | null;
+  content?: PortableTextBlock[]; // ✅ strict type
   tags?: string[];
-  readTime: number;
-  excerpt?: string;
+  readTime?: number;
+  excerpt?: string | null;
+  isFeatured?: boolean;
+  isVideo?: boolean;
+  duration?: string | null;
 }
 
 export interface RelatedArticle {
@@ -34,16 +39,4 @@ export interface RelatedArticle {
   category: string;
   date: string;
   readTime: number;
-}
-
-export interface Story {
-  id: number;
-  title: string;
-  img: string;
-  category?: string;
-  date?: string;
-  excerpt?: string;
-  isFeatured?: boolean;
-  isVideo?: boolean;
-  duration?: string;
 }
