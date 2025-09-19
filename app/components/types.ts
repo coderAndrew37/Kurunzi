@@ -8,6 +8,13 @@ export interface Topic {
   trendPercentage: number;
 }
 
+export interface NavItem {
+  title: string;
+  href?: string;
+  isLive?: boolean;
+  subItems?: NavItem[];
+}
+
 export interface Author {
   name: string;
   role?: string;

@@ -45,3 +45,24 @@ role,
 "avatar": image.asset->url
 }
 }`;
+
+export const navMenuQuery = groq`
+*[_type == "navMenu"][0]{
+  title,
+  "items": items[]{
+    title,
+    href,
+    isLive,
+    "subItems": subItems[]{
+      title,
+      href,
+      isLive,
+      "subItems": subItems[]{
+        title,
+        href,
+        isLive
+      }
+    }
+  }
+}
+`;

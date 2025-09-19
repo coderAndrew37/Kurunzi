@@ -2,10 +2,10 @@
 import BreakingNewsTicker from "./components/BreakingNewsTicker";
 import HeroSection from "./components/Hero";
 import SectionWithLead from "./components/SectionWithLead";
-import { transformSanityArticleToStory } from "@/lib/sanity.utils";
+import { transformSanityArticleToStory } from "@/app/lib/sanity.utils";
 import { Story } from "./components/types";
-import { sanityClient as client } from "@/lib/sanity.client";
-import { frontPageArticlesQuery as articlesQuery } from "@/lib/sanity.queries";
+import { sanityClient as client } from "@/app/lib/sanity.client";
+import { frontPageArticlesQuery as articlesQuery } from "@/app/lib/sanity.queries";
 // --- Page ---
 export default async function Home() {
   // 1. Fetch from Sanity

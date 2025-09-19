@@ -9,7 +9,7 @@ import {
   NavigationMenuList,
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
-import { cn } from "@/lib/utils";
+import { cn } from "@/app/lib/utils";
 import { Menu, Search, X, Youtube, Calendar, Star } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
