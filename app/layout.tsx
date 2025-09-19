@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono, Inter } from "next/font/google";
 import Footer from "./Footer";
 import "./globals.css";
-import NavBar from "./NavBar";
+import NavBar from "./navbar/NavBar";
 import TopAdBanner from "./TopAdBanner";
 
 import { sanityClient } from "@/app/lib/sanity.client";
@@ -53,7 +53,7 @@ export default async function RootLayout({
       >
         <TopAdBanner />
         {/* Pass nav data into your NavBar */}
-        <NavBar menuItems={menuItems} />
+        <NavBar />
         <main className="container mx-auto mt-10 px-4">{children}</main>
         <Footer />
       </body>
