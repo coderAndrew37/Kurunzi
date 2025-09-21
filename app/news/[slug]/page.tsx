@@ -1,22 +1,25 @@
-import { notFound } from "next/navigation";
-import Link from "next/link";
-import { Calendar, ArrowLeft, Clock } from "lucide-react";
 import { sanityClient } from "@/app/lib/sanity.client";
+import { urlFor } from "@/app/lib/sanity.image";
+import { PortableText } from "@portabletext/react";
+import {
+  ArrowLeft,
+  Bookmark,
+  Calendar,
+  MapPin,
+  RefreshCw,
+  Share2,
+} from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import LiveBadge from "../_components/LiveBadge";
+import ShareButtons from "../_components/ShareButtons";
+import RelatedArticles from "../_components/RelatedArticles";
 
 interface BreakingNewsPageProps {
   params: {
     slug: string;
   };
-}
-
-export interface News {
-  _id: string;
-  headline: string;
-  slug: string;
-  publishedAt: string;
-  category: string;
-  isActive: boolean;
-  expiresAt: string;
 }
 
 export async function generateMetadata({ params }: BreakingNewsPageProps) {
@@ -29,8 +32,15 @@ export async function generateMetadata({ params }: BreakingNewsPageProps) {
   }
 
   return {
-    title: `${news.headline} | Kurunzi News`,
-    description: `Breaking news: ${news.headline}`,
+    title: `${news.fullTitle} | Kurunzi News`,
+    description: news.excerpt || `Breaking news: ${news.headline}`,
+    openGraph: {
+      title: news.fullTitle,
+      description: news.excerpt,
+      images: news.featuredImage ? [urlFor(news.featuredImage).url()] : [],
+      type: "article",
+      publishedTime: news.publishedAt,
+    },
   };
 }
 
@@ -39,10 +49,23 @@ async function getBreakingNewsBySlug(slug: string) {
     *[_type == "breakingNews" && slug.current == $slug][0] {
       _id,
       headline,
+      fullTitle,
+      excerpt,
       "slug": slug.current,
+      content,
+      featuredImage,
       publishedAt,
+      updatedAt,
       category,
+      location,
+      author->{
+        name,
+        "image": image.asset->url,
+        bio
+      },
+      sources,
       isActive,
+      priority,
       expiresAt
     }
   `;
@@ -60,145 +83,223 @@ export default async function BreakingNewsPage({
     notFound();
   }
 
-  const publishedDate = new Date(news.publishedAt).toLocaleDateString("en-KE", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
+  const publishedDate = new Date(news.publishedAt);
+  const updatedDate = news.updatedAt ? new Date(news.updatedAt) : null;
+
+  const formatDate = (date: Date) => {
+    return date.toLocaleDateString("en-KE", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white shadow-sm border-b">
-        <div className="container mx-auto px-4 py-4">
-          <Link
-            href="/"
-            className="inline-flex items-center text-blue-600 hover:text-blue-800 font-medium mb-4"
-          >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Home
-          </Link>
+    <div className="min-h-screen bg-white">
+      {/* Premium Header */}
+      <header className="border-b border-gray-200 bg-white sticky top-0 z-50">
+        <div className="container mx-auto px-4">
+          <div className="flex items-center justify-between h-16">
+            <Link
+              href="/"
+              className="flex items-center space-x-2 text-gray-900 hover:text-blue-600 transition-colors"
+            >
+              <ArrowLeft className="h-5 w-5" />
+              <span className="font-semibold">Kurunzi News</span>
+            </Link>
 
-          <div className="flex items-center justify-between">
-            <div>
-              <span className="inline-flex items-center bg-red-100 text-red-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
-                <span className="h-2 w-2 bg-red-600 rounded-full mr-1 animate-pulse"></span>
+            <div className="flex items-center space-x-4">
+              <button className="p-2 text-gray-600 hover:text-blue-600 transition-colors">
+                <Bookmark className="h-5 w-5" />
+              </button>
+              <button className="p-2 text-gray-600 hover:text-blue-600 transition-colors">
+                <Share2 className="h-5 w-5" />
+              </button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* Hero Section */}
+      <div className="relative bg-gradient-to-br from-gray-900 to-gray-800 text-white">
+        <div className="absolute inset-0 bg-black/40"></div>
+
+        <div className="container mx-auto px-4 py-20 relative z-10">
+          <div className="max-w-4xl mx-auto">
+            {/* Breaking News Badge */}
+            <div className="flex items-center justify-center mb-6">
+              <LiveBadge />
+              <span className="ml-3 text-sm font-medium bg-red-600 px-3 py-1 rounded-full">
                 BREAKING NEWS
               </span>
               {news.category && (
-                <span className="ml-2 inline-flex items-center bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                <span className="ml-2 text-sm font-medium bg-blue-600 px-3 py-1 rounded-full">
                   {news.category.toUpperCase()}
                 </span>
               )}
             </div>
 
-            <div className="flex items-center text-sm text-gray-600">
-              <Calendar className="h-4 w-4 mr-1" />
-              {publishedDate}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Main Content */}
-      <div className="container mx-auto px-4 py-8">
-        <div className="max-w-4xl mx-auto">
-          {/* Article */}
-          <article className="bg-white rounded-lg shadow-md p-6 md:p-8">
-            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6 leading-tight">
-              {news.headline}
+            {/* Main Title */}
+            <h1 className="text-4xl md:text-6xl font-bold text-center leading-tight mb-6">
+              {news.fullTitle}
             </h1>
 
-            <div className="flex items-center text-sm text-gray-600 mb-6">
-              <Clock className="h-4 w-4 mr-1" />
-              Published {publishedDate}
-            </div>
+            {/* Excerpt */}
+            {news.excerpt && (
+              <p className="text-xl text-gray-300 text-center max-w-3xl mx-auto mb-8 leading-relaxed">
+                {news.excerpt}
+              </p>
+            )}
 
-            <div className="prose prose-lg max-w-none">
-              <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6">
-                <p className="text-yellow-700">
-                  <strong>Breaking News Update:</strong> This is a developing
-                  story. We will continue to update this page as more
-                  information becomes available.
-                </p>
+            {/* Meta Information */}
+            <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-8 text-sm text-gray-300">
+              <div className="flex items-center">
+                <Calendar className="h-4 w-4 mr-2" />
+                Published: {formatDate(publishedDate)}
               </div>
 
-              <p className="text-gray-700 mb-4">
-                This breaking news alert was issued to keep our readers informed
-                about developing events. Our news team is actively gathering
-                more details and will provide comprehensive coverage as the
-                situation evolves.
-              </p>
+              {updatedDate && (
+                <div className="flex items-center">
+                  <RefreshCw className="h-4 w-4 mr-2" />
+                  Updated: {formatDate(updatedDate)}
+                </div>
+              )}
 
-              <p className="text-gray-700 mb-4">
-                Stay tuned for live updates and expert analysis on this
-                developing story. Refresh this page for the latest information.
-              </p>
-
-              <div className="bg-gray-100 p-4 rounded-lg mt-8">
-                <h3 className="font-semibold text-gray-900 mb-2">
-                  About Kurunzi News Breaking Alerts
-                </h3>
-                <p className="text-sm text-gray-700">
-                  Our breaking news service delivers urgent and important news
-                  as it happens. We verify all information before publication to
-                  ensure accuracy and reliability.
-                </p>
-              </div>
+              {news.location && (
+                <div className="flex items-center">
+                  <MapPin className="h-4 w-4 mr-2" />
+                  {news.location}
+                </div>
+              )}
             </div>
-          </article>
-
-          {/* Related News */}
-          <div className="mt-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">
-              Latest Breaking News
-            </h2>
-            <RelatedBreakingNews currentSlug={news.slug} />
           </div>
         </div>
       </div>
-    </div>
-  );
-}
 
-async function RelatedBreakingNews({ currentSlug }: { currentSlug: string }) {
-  const query = `
-    *[_type == "breakingNews" && isActive == true && slug.current != $currentSlug] | order(publishedAt desc)[0...5] {
-      _id,
-      headline,
-      "slug": slug.current,
-      publishedAt,
-      category
-    }
-  `;
+      {/* Featured Image */}
+      {news.featuredImage && (
+        <div className="container mx-auto px-4 py-8">
+          <div className="max-w-4xl mx-auto">
+            <div className="relative aspect-video rounded-xl overflow-hidden shadow-2xl">
+              <Image
+                src={urlFor(news.featuredImage).url()}
+                alt={news.featuredImage.alt || news.fullTitle}
+                fill
+                className="object-cover"
+                priority
+              />
+              {news.featuredImage.caption && (
+                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-6">
+                  <p className="text-white text-sm">
+                    {news.featuredImage.caption}
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
-  const relatedNews = await sanityClient.fetch(query, { currentSlug });
+      {/* Article Content */}
+      <article className="container mx-auto px-4 py-12">
+        <div className="max-w-3xl mx-auto">
+          {/* Author Info */}
+          {news.author && (
+            <div className="flex items-center space-x-4 mb-8 p-6 bg-gray-50 rounded-xl">
+              <div className="relative w-12 h-12 rounded-full overflow-hidden">
+                <Image
+                  src={news.author.image}
+                  alt={news.author.name}
+                  fill
+                  className="object-cover"
+                />
+              </div>
+              <div>
+                <p className="font-semibold text-gray-900">
+                  {news.author.name}
+                </p>
+                <p className="text-sm text-gray-600">
+                  Senior News Correspondent
+                </p>
+              </div>
+            </div>
+          )}
 
-  if (relatedNews.length === 0) {
-    return null;
-  }
+          {/* Article Body */}
+          <div className="prose prose-lg max-w-none">
+            <div className="text-gray-700 leading-relaxed">
+              <PortableText value={news.content} />
+            </div>
 
-  return (
-    <div className="grid gap-4 md:grid-cols-2">
-      {relatedNews.map((news: News) => (
-        <Link
-          key={news._id}
-          href={`/news/${news.slug}`}
-          className="block bg-white rounded-lg shadow-md p-4 hover:shadow-lg transition-shadow"
-        >
-          <span className="inline-flex items-center bg-red-100 text-red-800 text-xs font-medium px-2.5 py-0.5 rounded-full mb-2">
-            BREAKING
-          </span>
-          <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2">
-            {news.headline}
-          </h3>
-          <p className="text-sm text-gray-600">
-            {new Date(news.publishedAt).toLocaleDateString()}
-          </p>
-        </Link>
-      ))}
+            {/* Sources */}
+            {news.sources && news.sources.length > 0 && (
+              <div className="mt-12 p-6 bg-gray-50 rounded-xl">
+                <h3 className="font-semibold text-gray-900 mb-4">Sources</h3>
+                <ul className="space-y-2 text-sm text-gray-600">
+                  {news.sources.map((source: string, index: number) => (
+                    <li key={index}>• {source}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {/* Article Footer */}
+            <div className="mt-12 pt-8 border-t border-gray-200">
+              <div className="flex flex-col sm:flex-row items-center justify-between space-y-4 sm:space-y-0">
+                <div className="text-sm text-gray-600">
+                  <p>Published: {formatDate(publishedDate)}</p>
+                  {updatedDate && (
+                    <p>Last updated: {formatDate(updatedDate)}</p>
+                  )}
+                </div>
+
+                <ShareButtons
+                  title={news.fullTitle}
+                  url={`https://kurunzi.news/news/${news.slug}`}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      {/* Related Articles */}
+      <div className="bg-gray-50 py-16">
+        <div className="container mx-auto px-4">
+          <div className="max-w-6xl mx-auto">
+            <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">
+              More Breaking News
+            </h2>
+            <RelatedArticles currentSlug={news.slug} category={news.category} />
+          </div>
+        </div>
+      </div>
+
+      {/* Newsletter Signup */}
+      <div className="bg-gradient-to-r from-blue-600 to-blue-800 py-16">
+        <div className="container mx-auto px-4">
+          <div className="max-w-2xl mx-auto text-center">
+            <h3 className="text-2xl font-bold text-white mb-4">
+              Stay Informed with Breaking News
+            </h3>
+            <p className="text-blue-100 mb-6">
+              Get instant alerts on major developments as they happen
+            </p>
+            <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+              <input
+                type="email"
+                placeholder="Enter your email"
+                className="flex-1 px-4 py-3 rounded-lg border border-blue-300 focus:outline-none focus:ring-2 focus:ring-white"
+              />
+              <button className="bg-white text-blue-600 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
+                Subscribe to Alerts
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
