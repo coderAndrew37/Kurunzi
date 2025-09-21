@@ -1,43 +1,77 @@
 import { sanityClient } from "./sanity.client";
 
+export interface News {
+  _id: string;
+  headline: string;
+  slug: string;
+  publishedAt: string;
+  category: string;
+  isActive: boolean;
+  expiresAt: string;
+}
+
 export interface BreakingNewsItem {
   headline: string;
   slug: string;
   href: string;
   category?: string;
+  publishedAt?: string;
 }
 
 export async function getBreakingNews(): Promise<BreakingNewsItem[]> {
   try {
-    console.debug("Fetching breaking news...");
     const news = await sanityClient.fetch(`
       *[_type == "breakingNews" && isActive == true && (expiresAt == null || expiresAt > now())] | order(priority desc, publishedAt desc) {
         headline,
         "slug": slug.current,
-        category
-      }[0...10] // Limit to 10 items
+        category,
+        publishedAt
+      }[0...10]
     `);
 
-    console.debug("Received breaking news:", news);
-    // Convert to the expected format with href
-    return news.map(
-      ({
-        headline,
-        slug,
-        category,
-      }: {
-        headline: string;
-        slug: string;
-        category?: string;
-      }) => ({
-        headline,
-        slug,
-        href: `/news/${slug}`,
-        category,
-      })
-    );
+    return news.map((item: News) => ({
+      headline: item.headline,
+      slug: item.slug,
+      href: `/news/${item.slug}`,
+      category: item.category,
+      publishedAt: item.publishedAt,
+    }));
   } catch (error) {
     console.error("Error fetching breaking news:", error);
     return [];
+  }
+}
+
+// Add this new function to get single news by slug
+export async function getBreakingNewsBySlug(
+  slug: string
+): Promise<BreakingNewsItem | null> {
+  try {
+    const news = await sanityClient.fetch(
+      `
+      *[_type == "breakingNews" && slug.current == $slug][0] {
+        headline,
+        "slug": slug.current,
+        category,
+        publishedAt,
+        isActive,
+        expiresAt
+      }
+    `,
+      { slug }
+    );
+
+    if (!news) return null;
+
+    return {
+      headline: news.headline,
+      slug: news.slug,
+      href: `/news/${news.slug}`,
+      category: news.category,
+      publishedAt: news.publishedAt,
+    };
+  } catch (error) {
+    console.error("Error fetching breaking news by slug:", error);
+    return null;
   }
 }

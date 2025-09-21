@@ -9,7 +9,7 @@ interface BreakingNewsPageProps {
   };
 }
 
-interface News {
+export interface News {
   _id: string;
   headline: string;
   slug: string;
