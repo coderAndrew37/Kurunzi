@@ -1,15 +1,11 @@
+import { NavItem } from "../types/navigation";
 import { sanityClient } from "./sanity.client";
 
 export async function getNavigation() {
   console.log("Fetching navigation from Sanity...");
-
-  const nav = await sanityClient.fetch(`
-    *[_type == "navigation" && !(_id match "_.**")]{
-      _id,
-      title,
-      href,
-      isLive,
-      subItems[]->{
+  try {
+    const nav = await sanityClient.fetch(`
+      *[_type == "navigation"]{
         _id,
         title,
         href,
@@ -18,12 +14,41 @@ export async function getNavigation() {
           _id,
           title,
           href,
-          isLive
+          isLive,
+          subItems[]->{
+            _id,
+            title,
+            href,
+            isLive
+          }
         }
-      }
-    } | order(title asc)
-  `);
+      } | order(title asc)
+    `);
 
-  console.log("Received navigation from Sanity:", nav);
-  return nav;
+    // Normalize the data - ensure subItems is always an array
+    const normalizedNav: NavItem[] = nav.map(
+      (item: {
+        _id: string;
+        title: string;
+        href: string;
+        isLive?: boolean;
+        subItems?: {
+          _id: string;
+          title: string;
+          href: string;
+          isLive?: boolean;
+        }[];
+      }) => ({
+        ...item,
+        subItems: item.subItems || [],
+        isLive: item.isLive || false,
+      })
+    );
+
+    console.log("Received navigation from Sanity:", normalizedNav);
+    return normalizedNav;
+  } catch (error) {
+    console.error("Error fetching navigation:", error);
+    return [];
+  }
 }

@@ -40,7 +40,7 @@ export default async function RootLayout({
 
   try {
     const nav = await getNavigation();
-    menuItems = nav?.items ?? [];
+    menuItems = nav ?? []; // Remove .items access
   } catch (err) {
     console.warn("⚠️ Failed to fetch nav menu from Sanity:", err);
   }
@@ -51,7 +51,6 @@ export default async function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <TopAdBanner />
-        {/* ✅ Pass nav data into your NavBar */}
         <NavBar menuItems={menuItems} />
         <main className="container mx-auto mt-10 px-4">{children}</main>
         <Footer />

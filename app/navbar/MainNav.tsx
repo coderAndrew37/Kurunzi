@@ -28,6 +28,8 @@ export default function MainNav({
   toggleMobileMenu,
   menuItems,
 }: MainNavProps) {
+  console.log("MainNav received menuItems:", menuItems);
+
   return (
     <div className="flex items-center justify-between">
       {/* Logo */}
@@ -45,11 +47,11 @@ export default function MainNav({
         <NavigationMenu className="hidden lg:block">
           <NavigationMenuList>
             {menuItems.map((item) => (
-              <NavigationMenuItem key={item.title}>
+              <NavigationMenuItem key={item._id}>
                 <NavigationMenuTrigger className="font-semibold text-slate-700 hover:text-blue-600 data-[state=open]:text-blue-600">
                   {item.title}
                 </NavigationMenuTrigger>
-                {item.subItems && (
+                {item.subItems && item.subItems.length > 0 && (
                   <NavigationMenuContent>
                     <div
                       className={cn(
@@ -66,7 +68,7 @@ export default function MainNav({
                         )}
                       >
                         {item.subItems.map((subItem) => (
-                          <div key={subItem.title}>
+                          <div key={subItem._id}>
                             <Link
                               href={subItem.href}
                               className={cn(
@@ -91,19 +93,20 @@ export default function MainNav({
                               </p>
 
                               {/* Nested subitems */}
-                              {subItem.subItems && (
-                                <div className="mt-2 pl-2 border-l border-gray-200">
-                                  {subItem.subItems.map((nestedItem) => (
-                                    <Link
-                                      key={nestedItem.title}
-                                      href={nestedItem.href}
-                                      className="block py-1 text-sm text-slate-600 hover:text-blue-600"
-                                    >
-                                      {nestedItem.title}
-                                    </Link>
-                                  ))}
-                                </div>
-                              )}
+                              {subItem.subItems &&
+                                subItem.subItems.length > 0 && (
+                                  <div className="mt-2 pl-2 border-l border-gray-200">
+                                    {subItem.subItems.map((nestedItem) => (
+                                      <Link
+                                        key={nestedItem._id}
+                                        href={nestedItem.href}
+                                        className="block py-1 text-sm text-slate-600 hover:text-blue-600"
+                                      >
+                                        {nestedItem.title}
+                                      </Link>
+                                    ))}
+                                  </div>
+                                )}
                             </Link>
                           </div>
                         ))}
