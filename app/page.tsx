@@ -6,9 +6,21 @@ import { sanityClient as client } from "@/app/lib/sanity.client";
 import { frontPageArticlesQuery as articlesQuery } from "@/app/lib/sanity.queries";
 import { transformSanityArticleToStory } from "@/app/lib/sanity.utils";
 import { Story } from "./components/types";
+import { categoryStoriesQuery } from "./lib/getCategoryStories";
+import SectionWithLead from "./components/SectionWithLead";
 
 // --- Page ---
 export default async function Home() {
+  const politics = await client.fetch(categoryStoriesQuery, {
+    category: "Politics",
+  });
+  const politicsStories = (politics || []).map(transformSanityArticleToStory);
+
+  const business = await client.fetch(categoryStoriesQuery, {
+    category: "Business",
+  });
+  const businessStories = (business || []).map(transformSanityArticleToStory);
+
   // 1. Fetch hero stories
   const heroStories: Story[] = await getHeroStories();
 
@@ -27,6 +39,9 @@ export default async function Home() {
 
       {/* Example other sections */}
       {/* You can later add heroStories.slice(1,3) into a carousel/grid */}
+
+      <SectionWithLead sectionTitle="Politics" stories={politicsStories} />
+      <SectionWithLead sectionTitle="Business" stories={businessStories} />
 
       {/* Sidebar + Main Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 max-w-7xl mx-auto w-full px-4 py-12">

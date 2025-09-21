@@ -6,17 +6,8 @@ import { Story } from "./types";
 
 interface SectionWithLeadProps {
   sectionTitle: string;
-  leadStory: Story;
   stories: Story[];
 }
-
-// Generate slug from title
-const generateSlug = (title: string) => {
-  return title
-    .toLowerCase()
-    .replace(/[^\w ]+/g, "")
-    .replace(/ +/g, "-");
-};
 
 // Carousel component for the left column
 function ImageCarousel({ stories }: { stories: Story[] }) {
@@ -30,13 +21,17 @@ function ImageCarousel({ stories }: { stories: Story[] }) {
   }, [stories.length]);
 
   const currentStory = stories[currentIndex];
-  const slug = generateSlug(currentStory.title);
+  const slug = currentStory.slug;
 
   return (
     <div className="relative h-full rounded-xl overflow-hidden">
       <div className="relative w-full h-full">
         <Image
-          src={typeof currentStory.img === "string" ? currentStory.img : null}
+          src={
+            typeof currentStory.img === "string"
+              ? currentStory.img
+              : "/placeholder.png"
+          }
           alt={currentStory.title}
           fill
           className="object-cover"
@@ -46,14 +41,7 @@ function ImageCarousel({ stories }: { stories: Story[] }) {
         {currentStory.isVideo && (
           <div className="absolute top-4 left-4 flex items-center">
             <div className="bg-red-600 text-white text-xs px-2 py-1 rounded-md flex items-center">
-              <svg
-                className="w-3 h-3 mr-1"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-              >
-                <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z" />
-              </svg>
-              <span>VIDEO</span>
+              ▶ VIDEO
             </div>
             {currentStory.duration && (
               <span className="ml-2 text-white text-xs bg-black/50 px-2 py-1 rounded-md">
@@ -108,15 +96,13 @@ export default function SectionWithLead({
   sectionTitle,
   stories,
 }: SectionWithLeadProps) {
-  // In a real app, you would receive these as props
   const showAd = true;
   const adPosition = 2;
 
-  // Separate carousel, middle, and top stories
-  const carouselStories = stories.filter((_, i) => i < 3);
+  const carouselStories = stories.slice(0, 3);
   const middleStory = stories[3];
-  const topStories = stories.filter((_, i) => i > 3 && i < 8);
-  const gridStories = stories.filter((_, i) => i >= 8);
+  const topStories = stories.slice(4, 8);
+  const gridStories = stories.slice(8);
 
   return (
     <div className="w-full max-w-7xl mx-auto px-4 py-8 bg-neutral-50">
@@ -147,10 +133,10 @@ export default function SectionWithLead({
         <div className="lg:col-span-1">
           {middleStory && (
             <div className="group h-full flex flex-col">
-              <Link href={`/article/${generateSlug(middleStory.title)}`}>
+              <Link href={`/article/${middleStory.slug}`}>
                 <div className="relative w-full h-48 mb-4 rounded-xl overflow-hidden">
                   <Image
-                    src={middleStory.img}
+                    src={middleStory.img || "/placeholder.png"}
                     alt={middleStory.title}
                     fill
                     className="object-cover group-hover:scale-105 transition-transform duration-300"
@@ -187,33 +173,30 @@ export default function SectionWithLead({
             Top Stories
           </h3>
           <div className="space-y-4">
-            {topStories.map((story) => {
-              const slug = generateSlug(story.title);
-              return (
-                <div key={story.id} className="group flex gap-3">
-                  <Link href={`/article/${slug}`} className="flex gap-3">
-                    <div className="relative w-16 h-16 flex-shrink-0 rounded-md overflow-hidden">
-                      <Image
-                        src={story.img}
-                        alt={story.title}
-                        fill
-                        className="object-cover group-hover:scale-105 transition-transform duration-300"
-                      />
-                    </div>
-                    <div>
-                      <h4 className="font-medium text-neutral-900 text-sm group-hover:text-blue-700 transition-colors line-clamp-2">
-                        {story.title}
-                      </h4>
-                      {story.date && (
-                        <p className="text-xs text-neutral-500 mt-1">
-                          {story.date}
-                        </p>
-                      )}
-                    </div>
-                  </Link>
-                </div>
-              );
-            })}
+            {topStories.map((story) => (
+              <div key={story.id} className="group flex gap-3">
+                <Link href={`/article/${story.slug}`} className="flex gap-3">
+                  <div className="relative w-16 h-16 flex-shrink-0 rounded-md overflow-hidden">
+                    <Image
+                      src={story.img || "/placeholder.png"}
+                      alt={story.title}
+                      fill
+                      className="object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                  </div>
+                  <div>
+                    <h4 className="font-medium text-neutral-900 text-sm group-hover:text-blue-700 transition-colors line-clamp-2">
+                      {story.title}
+                    </h4>
+                    {story.date && (
+                      <p className="text-xs text-neutral-500 mt-1">
+                        {story.date}
+                      </p>
+                    )}
+                  </div>
+                </Link>
+              </div>
+            ))}
           </div>
         </div>
       </div>
@@ -231,49 +214,46 @@ export default function SectionWithLead({
 
       {/* News grid section */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {gridStories.map((story, idx) => {
-          const slug = generateSlug(story.title);
-          return (
-            <div key={story.id} className="group">
-              <Link href={`/article/${slug}`}>
-                <div className="relative w-full h-48 mb-4 rounded-xl overflow-hidden">
-                  <Image
-                    src={story.img}
-                    alt={story.title}
-                    fill
-                    className="object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                  {story.category && (
-                    <div className="absolute top-3 left-3">
-                      <span className="px-2 py-1 bg-blue-700 text-white text-xs font-medium rounded">
-                        {story.category}
-                      </span>
-                    </div>
-                  )}
-                </div>
-                <h3 className="font-semibold text-neutral-900 mb-2 group-hover:text-blue-700 transition-colors line-clamp-2">
-                  {story.title}
-                </h3>
-                {story.excerpt && (
-                  <p className="text-neutral-600 text-sm mb-2 line-clamp-2">
-                    {story.excerpt}
-                  </p>
+        {gridStories.map((story, idx) => (
+          <div key={story.id} className="group">
+            <Link href={`/article/${story.slug}`}>
+              <div className="relative w-full h-48 mb-4 rounded-xl overflow-hidden">
+                <Image
+                  src={story.img || "/placeholder.png"}
+                  alt={story.title}
+                  fill
+                  className="object-cover group-hover:scale-105 transition-transform duration-300"
+                />
+                {story.category && (
+                  <div className="absolute top-3 left-3">
+                    <span className="px-2 py-1 bg-blue-700 text-white text-xs font-medium rounded">
+                      {story.category}
+                    </span>
+                  </div>
                 )}
-                {story.date && (
-                  <p className="text-xs text-neutral-500">{story.date}</p>
-                )}
-              </Link>
-
-              {/* Inject Ad after specified position */}
-              {showAd && idx === adPosition && (
-                <div className="w-full h-32 bg-gradient-to-br from-neutral-100 to-neutral-200 rounded-lg border border-neutral-300 flex flex-col items-center justify-center text-neutral-500 mt-4">
-                  <div className="text-sm font-medium mb-1">Advertisement</div>
-                  <div className="text-xs">Ad Slot (300x250)</div>
-                </div>
+              </div>
+              <h3 className="font-semibold text-neutral-900 mb-2 group-hover:text-blue-700 transition-colors line-clamp-2">
+                {story.title}
+              </h3>
+              {story.excerpt && (
+                <p className="text-neutral-600 text-sm mb-2 line-clamp-2">
+                  {story.excerpt}
+                </p>
               )}
-            </div>
-          );
-        })}
+              {story.date && (
+                <p className="text-xs text-neutral-500">{story.date}</p>
+              )}
+            </Link>
+
+            {/* Inject Ad after specified position */}
+            {showAd && idx === adPosition && (
+              <div className="w-full h-32 bg-gradient-to-br from-neutral-100 to-neutral-200 rounded-lg border border-neutral-300 flex flex-col items-center justify-center text-neutral-500 mt-4">
+                <div className="text-sm font-medium mb-1">Advertisement</div>
+                <div className="text-xs">Ad Slot (300x250)</div>
+              </div>
+            )}
+          </div>
+        ))}
       </div>
 
       {/* Load more button */}
