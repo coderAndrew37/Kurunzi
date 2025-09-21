@@ -4,8 +4,7 @@ import { createClient } from "next-sanity";
 export const sanityClient = createClient({
   projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID!,
   dataset: process.env.NEXT_PUBLIC_SANITY_DATASET || "production",
-  apiVersion: process.env.NEXT_PUBLIC_SANITY_API_VERSION || "2025-09-06",
+  apiVersion: "2023-08-01", // match what worked in Postman
   useCdn: process.env.NODE_ENV === "production",
-  // Optional: set SANITY_READ_TOKEN in env for preview/drafts on server-side only
   token: process.env.SANITY_READ_TOKEN || undefined,
 });

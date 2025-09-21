@@ -47,3 +47,5 @@ export interface RelatedArticle {
   date: string;
   readTime: number;
 }
+
+

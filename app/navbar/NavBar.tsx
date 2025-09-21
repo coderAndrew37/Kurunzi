@@ -8,8 +8,13 @@ import MainNav from "./MainNav";
 import SearchBar from "./SearchBar";
 import MobileNav from "./MobileNav";
 import { popularTags } from "./popularTags";
+import { NavItem } from "../types/navigation";
 
-export default function Header() {
+interface HeaderProps {
+  menuItems: NavItem[];
+}
+
+export default function Header({ menuItems }: HeaderProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
@@ -72,13 +77,14 @@ export default function Header() {
           toggleSearch={() => setIsSearchOpen(!isSearchOpen)}
           isMobileMenuOpen={isMobileMenuOpen}
           toggleMobileMenu={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          menuItems={menuItems}
         />
 
         {/* Search Bar */}
         <SearchBar isSearchOpen={isSearchOpen} />
 
         {/* Mobile Navigation */}
-        <MobileNav isMobileMenuOpen={isMobileMenuOpen} />
+        <MobileNav isMobileMenuOpen={isMobileMenuOpen} menuItems={menuItems} />
       </div>
     </header>
   );

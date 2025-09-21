@@ -6,9 +6,8 @@ import "./globals.css";
 import NavBar from "./navbar/NavBar";
 import TopAdBanner from "./TopAdBanner";
 
-import { sanityClient } from "@/app/lib/sanity.client";
-import { NavItem } from "./components/types";
-import { navMenuQuery } from "@/app/lib/sanity.queries";
+import { getNavigation } from "./lib/getNavigation";
+import { NavItem } from "./types/navigation";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,17 +30,17 @@ export const metadata: Metadata = {
   description: "Independent Kenyan news, politics, sports and more",
 };
 
-// ✅ Make this async so we can fetch from Sanity
+// ✅ Async layout so we can fetch from Sanity
 export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  let menuItems: NavItem[] | undefined = undefined;
+  let menuItems: NavItem[] = [];
 
   try {
-    const nav = await sanityClient.fetch(navMenuQuery);
-    menuItems = nav?.items ?? undefined;
+    const nav = await getNavigation();
+    menuItems = nav?.items ?? [];
   } catch (err) {
     console.warn("⚠️ Failed to fetch nav menu from Sanity:", err);
   }
@@ -52,8 +51,8 @@ export default async function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <TopAdBanner />
-        {/* Pass nav data into your NavBar */}
-        <NavBar />
+        {/* ✅ Pass nav data into your NavBar */}
+        <NavBar menuItems={menuItems} />
         <main className="container mx-auto mt-10 px-4">{children}</main>
         <Footer />
       </body>

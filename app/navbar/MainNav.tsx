@@ -11,13 +11,14 @@ import { Button } from "@/components/ui/button";
 import { Menu, Search, Star, X } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/app/lib/utils";
-import { menuItems } from "./menuItems";
+import { NavItem } from "../types/navigation";
 
 interface MainNavProps {
   isSearchOpen: boolean;
   toggleSearch: () => void;
   isMobileMenuOpen: boolean;
   toggleMobileMenu: () => void;
+  menuItems: NavItem[];
 }
 
 export default function MainNav({
@@ -25,6 +26,7 @@ export default function MainNav({
   toggleSearch,
   isMobileMenuOpen,
   toggleMobileMenu,
+  menuItems,
 }: MainNavProps) {
   return (
     <div className="flex items-center justify-between">
@@ -47,60 +49,68 @@ export default function MainNav({
                 <NavigationMenuTrigger className="font-semibold text-slate-700 hover:text-blue-600 data-[state=open]:text-blue-600">
                   {item.title}
                 </NavigationMenuTrigger>
-                <NavigationMenuContent>
-                  <div
-                    className={cn(
-                      "p-4",
-                      item.title === "Sports" ? "w-[800px]" : "w-[400px]"
-                    )}
-                  >
+                {item.subItems && (
+                  <NavigationMenuContent>
                     <div
                       className={cn(
-                        "grid gap-3",
-                        item.title === "Sports" ? "grid-cols-3" : "grid-cols-2"
+                        "p-4",
+                        item.title === "Sports" ? "w-[800px]" : "w-[400px]"
                       )}
                     >
-                      {item.subItems.map((subItem) => (
-                        <div key={subItem.title}>
-                          <Link
-                            href={subItem.href}
-                            className={cn(
-                              "block p-3 rounded-lg hover:bg-slate-50 transition-colors",
-                              subItem.isLive ? "bg-red-50 hover:bg-red-100" : ""
-                            )}
-                          >
-                            <p
+                      <div
+                        className={cn(
+                          "grid gap-3",
+                          item.title === "Sports"
+                            ? "grid-cols-3"
+                            : "grid-cols-2"
+                        )}
+                      >
+                        {item.subItems.map((subItem) => (
+                          <div key={subItem.title}>
+                            <Link
+                              href={subItem.href}
                               className={cn(
-                                "font-medium text-slate-900",
+                                "block p-3 rounded-lg hover:bg-slate-50 transition-colors",
                                 subItem.isLive
-                                  ? "text-red-600 flex items-center"
+                                  ? "bg-red-50 hover:bg-red-100"
                                   : ""
                               )}
                             >
-                              {subItem.isLive && (
-                                <Star className="h-4 w-4 mr-1 fill-red-600" />
+                              <p
+                                className={cn(
+                                  "font-medium text-slate-900",
+                                  subItem.isLive
+                                    ? "text-red-600 flex items-center"
+                                    : ""
+                                )}
+                              >
+                                {subItem.isLive && (
+                                  <Star className="h-4 w-4 mr-1 fill-red-600" />
+                                )}
+                                {subItem.title}
+                              </p>
+
+                              {/* Nested subitems */}
+                              {subItem.subItems && (
+                                <div className="mt-2 pl-2 border-l border-gray-200">
+                                  {subItem.subItems.map((nestedItem) => (
+                                    <Link
+                                      key={nestedItem.title}
+                                      href={nestedItem.href}
+                                      className="block py-1 text-sm text-slate-600 hover:text-blue-600"
+                                    >
+                                      {nestedItem.title}
+                                    </Link>
+                                  ))}
+                                </div>
                               )}
-                              {subItem.title}
-                            </p>
-                            {subItem.subItems && (
-                              <div className="mt-2 pl-2 border-l border-gray-200">
-                                {subItem.subItems.map((nestedItem) => (
-                                  <Link
-                                    key={nestedItem.title}
-                                    href={nestedItem.href}
-                                    className="block py-1 text-sm text-slate-600 hover:text-blue-600"
-                                  >
-                                    {nestedItem.title}
-                                  </Link>
-                                ))}
-                              </div>
-                            )}
-                          </Link>
-                        </div>
-                      ))}
+                            </Link>
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                </NavigationMenuContent>
+                  </NavigationMenuContent>
+                )}
               </NavigationMenuItem>
             ))}
           </NavigationMenuList>

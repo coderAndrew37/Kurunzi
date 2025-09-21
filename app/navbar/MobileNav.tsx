@@ -2,13 +2,17 @@
 
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { menuItems } from "./menuItems";
+import { NavItem } from "../types/navigation";
 
 interface MobileNavProps {
   isMobileMenuOpen: boolean;
+  menuItems: NavItem[];
 }
 
-export default function MobileNav({ isMobileMenuOpen }: MobileNavProps) {
+export default function MobileNav({
+  isMobileMenuOpen,
+  menuItems,
+}: MobileNavProps) {
   if (!isMobileMenuOpen) return null;
 
   return (
@@ -17,39 +21,45 @@ export default function MobileNav({ isMobileMenuOpen }: MobileNavProps) {
         {menuItems.map((item) => (
           <div key={item.title} className="group">
             <Link
-              href={item.href}
+              href={item.href ?? "#"}
               className="flex items-center justify-between py-2 text-slate-700 font-medium group-hover:text-blue-600"
             >
               {item.title}
             </Link>
-            <div className="pl-4 mt-1 grid gap-2 border-l border-slate-200 ml-2">
-              {item.subItems.map((subItem) => (
-                <div key={subItem.title}>
-                  <Link
-                    href={subItem.href}
-                    className="block py-2 text-sm text-slate-600 hover:text-blue-600"
-                  >
-                    {subItem.title}
-                  </Link>
-                  {subItem.subItems && (
-                    <div className="pl-4 mt-1 grid gap-1 border-l border-slate-200 ml-2">
-                      {subItem.subItems.map((nestedItem) => (
-                        <Link
-                          key={nestedItem.title}
-                          href={nestedItem.href}
-                          className="block py-1 text-xs text-slate-500 hover:text-blue-600"
-                        >
-                          {nestedItem.title}
-                        </Link>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
+
+            {item.subItems && (
+              <div className="pl-4 mt-1 grid gap-2 border-l border-slate-200 ml-2">
+                {item.subItems.map((subItem) => (
+                  <div key={subItem.title}>
+                    <Link
+                      href={subItem.href ?? "#"}
+                      className="block py-2 text-sm text-slate-600 hover:text-blue-600"
+                    >
+                      {subItem.title}
+                    </Link>
+
+                    {/* Nested subitems */}
+                    {subItem.subItems && (
+                      <div className="pl-4 mt-1 grid gap-1 border-l border-slate-200 ml-2">
+                        {subItem.subItems.map((nestedItem) => (
+                          <Link
+                            key={nestedItem.title}
+                            href={nestedItem.href ?? "#"}
+                            className="block py-1 text-xs text-slate-500 hover:text-blue-600"
+                          >
+                            {nestedItem.title}
+                          </Link>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         ))}
 
+        {/* Subscribe button (only visible on mobile) */}
         <Button className="bg-gradient-to-r from-blue-600 to-blue-800 text-white hover:from-blue-700 hover:to-blue-900 mt-2 sm:hidden">
           Subscribe
         </Button>
