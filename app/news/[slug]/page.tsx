@@ -1,20 +1,12 @@
 import { sanityClient } from "@/app/lib/sanity.client";
 import { urlFor } from "@/app/lib/sanity.image";
 import { PortableText } from "@portabletext/react";
-import {
-  ArrowLeft,
-  Bookmark,
-  Calendar,
-  MapPin,
-  RefreshCw,
-  Share2,
-} from "lucide-react";
+import { Calendar, MapPin, RefreshCw } from "lucide-react";
 import Image from "next/image";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import LiveBadge from "../_components/LiveBadge";
-import ShareButtons from "../_components/ShareButtons";
 import RelatedArticles from "../_components/RelatedArticles";
+import ShareButtons from "../_components/ShareButtons";
 
 interface BreakingNewsPageProps {
   params: {
@@ -98,30 +90,6 @@ export default async function BreakingNewsPage({
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Premium Header */}
-      <header className="border-b border-gray-200 bg-white sticky top-0 z-50">
-        <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between h-16">
-            <Link
-              href="/"
-              className="flex items-center space-x-2 text-gray-900 hover:text-blue-600 transition-colors"
-            >
-              <ArrowLeft className="h-5 w-5" />
-              <span className="font-semibold">Kurunzi News</span>
-            </Link>
-
-            <div className="flex items-center space-x-4">
-              <button className="p-2 text-gray-600 hover:text-blue-600 transition-colors">
-                <Bookmark className="h-5 w-5" />
-              </button>
-              <button className="p-2 text-gray-600 hover:text-blue-600 transition-colors">
-                <Share2 className="h-5 w-5" />
-              </button>
-            </div>
-          </div>
-        </div>
-      </header>
-
       {/* Hero Section */}
       <div className="relative bg-gradient-to-br from-gray-900 to-gray-800 text-white">
         <div className="absolute inset-0 bg-black/40"></div>
