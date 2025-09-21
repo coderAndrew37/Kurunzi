@@ -28,7 +28,7 @@ export default function MainNav({
   toggleMobileMenu,
   menuItems,
 }: MainNavProps) {
-  console.log("MainNav received menuItems:", menuItems);
+  // console.log("MainNav received menuItems:", menuItems);
 
   return (
     <div className="flex items-center justify-between">

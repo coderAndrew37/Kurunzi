@@ -1,31 +1,11 @@
-"use client";
-import { useState } from "react";
+import { getBreakingNews } from "../lib/getBreakingNews";
 
-type Headline = {
-  text: string;
-  href: string;
-};
+export default async function BreakingNewsTicker() {
+  const newsItems = await getBreakingNews();
 
-interface BreakingNewsTickerProps {
-  headlines?: Headline[];
-}
-
-const defaultHeadlines: Headline[] = [
-  { text: "Breaking: President announces new economic reforms", href: "#" },
-  { text: "Weather Alert: Heavy rains expected this weekend", href: "#" },
-  { text: "Global Markets: Oil prices hit 6-month high", href: "#" },
-  { text: "Health: New malaria vaccine shows promising results", href: "#" },
-  {
-    text: "Sports: National team qualifies for continental championship",
-    href: "#",
-  },
-  { text: "Technology: Local startup secures $10M in funding", href: "#" },
-];
-
-export default function BreakingNewsTicker({
-  headlines = defaultHeadlines,
-}: BreakingNewsTickerProps) {
-  const [isPaused, setIsPaused] = useState(false);
+  if (!newsItems.length) {
+    return null;
+  }
 
   return (
     <div className="w-full bg-gradient-to-r from-red-600 to-red-700 text-white py-3 overflow-hidden relative shadow-md">
@@ -37,25 +17,17 @@ export default function BreakingNewsTicker({
         </div>
 
         {/* Ticker */}
-        <div
-          className="flex-1 overflow-hidden relative"
-          onMouseEnter={() => setIsPaused(true)}
-          onMouseLeave={() => setIsPaused(false)}
-        >
-          <div
-            className={`flex whitespace-nowrap animate-marquee ${
-              isPaused ? "pause" : ""
-            }`}
-          >
-            {[...headlines, ...headlines].map((headline, index) => (
+        <div className="flex-1 overflow-hidden relative">
+          <div className="flex whitespace-nowrap animate-marquee">
+            {[...newsItems, ...newsItems].map((item, index) => (
               <div key={index} className="inline-flex items-center mr-8">
                 <a
-                  href={headline.href}
+                  href={item.href}
                   className="text-sm font-medium hover:underline"
                 >
-                  {headline.text}
+                  {item.headline}
                 </a>
-                {index < headlines.length * 2 - 1 && (
+                {index < newsItems.length * 2 - 1 && (
                   <span className="mx-4 text-white/40">•</span>
                 )}
               </div>
@@ -67,24 +39,6 @@ export default function BreakingNewsTicker({
       {/* Gradient fade */}
       <div className="absolute left-0 top-0 bottom-0 w-10 bg-gradient-to-r from-red-600 to-transparent pointer-events-none"></div>
       <div className="absolute right-0 top-0 bottom-0 w-10 bg-gradient-to-l from-red-600 to-transparent pointer-events-none"></div>
-
-      {/* Keyframes */}
-      <style jsx>{`
-        @keyframes marquee {
-          0% {
-            transform: translateX(0%);
-          }
-          100% {
-            transform: translateX(-50%);
-          }
-        }
-        .animate-marquee {
-          animation: marquee 30s linear infinite;
-        }
-        .pause {
-          animation-play-state: paused;
-        }
-      `}</style>
     </div>
   );
 }

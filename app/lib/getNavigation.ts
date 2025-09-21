@@ -2,7 +2,7 @@ import { NavItem } from "../types/navigation";
 import { sanityClient } from "./sanity.client";
 
 export async function getNavigation() {
-  console.log("Fetching navigation from Sanity...");
+  // console.log("Fetching navigation from Sanity...");
   try {
     const nav = await sanityClient.fetch(`
       *[_type == "navigation"]{
@@ -45,7 +45,7 @@ export async function getNavigation() {
       })
     );
 
-    console.log("Received navigation from Sanity:", normalizedNav);
+    // console.log("Received navigation from Sanity:", normalizedNav);
     return normalizedNav;
   } catch (error) {
     console.error("Error fetching navigation:", error);
