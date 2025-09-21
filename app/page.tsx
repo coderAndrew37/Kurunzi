@@ -1,17 +1,19 @@
 // app/page.tsx
 import BreakingNewsTicker from "./components/BreakingNewsTicker";
-import HeroSection from "./components/Hero";
-import SectionWithLead from "./components/SectionWithLead";
-import { transformSanityArticleToStory } from "@/app/lib/sanity.utils";
-import { Story } from "./components/types";
+import Hero from "./components/Hero";
+import { getHeroStories } from "@/app/lib/getHeroStories"; // ✅ add
 import { sanityClient as client } from "@/app/lib/sanity.client";
 import { frontPageArticlesQuery as articlesQuery } from "@/app/lib/sanity.queries";
+import { transformSanityArticleToStory } from "@/app/lib/sanity.utils";
+import { Story } from "./components/types";
+
 // --- Page ---
 export default async function Home() {
-  // 1. Fetch from Sanity
-  const data = await client.fetch(articlesQuery);
+  // 1. Fetch hero stories
+  const heroStories: Story[] = await getHeroStories();
 
-  // 2. Transform into Story[]
+  // 2. Fetch other articles
+  const data = await client.fetch(articlesQuery);
   const stories: Story[] = (data || []).map(transformSanityArticleToStory);
 
   return (
@@ -20,25 +22,16 @@ export default async function Home() {
       <BreakingNewsTicker />
 
       {/* Hero Section */}
-      <HeroSection stories={stories} />
+      {/* Hero Section */}
+      {heroStories.length > 0 && <Hero stories={heroStories} />}
 
       {/* Example other sections */}
-      <SectionWithLead
-        sectionTitle="Politics"
-        leadStory={stories[0]} // 👈 pull from Sanity instead of hardcoding
-        stories={stories.slice(1, 5)}
-      />
-
-      <SectionWithLead
-        sectionTitle="Business"
-        leadStory={stories[5]}
-        stories={stories.slice(6, 10)}
-      />
+      {/* You can later add heroStories.slice(1,3) into a carousel/grid */}
 
       {/* Sidebar + Main Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 max-w-7xl mx-auto w-full px-4 py-12">
         <div className="lg:col-span-2 flex flex-col gap-8">
-          {/* Culture, Sports, Lifestyle, etc. can go here */}
+          {/* Sections go here */}
         </div>
 
         {/* Sidebar */}
