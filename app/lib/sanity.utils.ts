@@ -1,15 +1,30 @@
+// app/lib/sanity.utils.ts
 import { Author, Story } from "@/app/components/types";
-import type { PortableTextBlock, PortableTextChild } from "sanity";
-interface RawSanityArticle {
+import type {
+  PortableTextBlock,
+  PortableTextSpan,
+  PortableTextMarkDefinition,
+  ArbitraryTypedObject,
+} from "@portabletext/types";
+
+export interface RawSanityArticle {
   _id: string;
   slug?: { current: string };
   title: string;
   subtitle?: string | null;
   mainImage?: { asset?: { url?: string } };
-  categories?: { title?: string }[];
+  categories?: {
+    title?: string;
+    slug?: { current: string };
+  }[];
   publishedAt?: string | null;
   author?: Author | null;
-  body?: PortableTextBlock[];
+  body?: PortableTextBlock<
+    PortableTextMarkDefinition,
+    ArbitraryTypedObject | PortableTextSpan,
+    string,
+    string
+  >[];
   tags?: string[];
   readTime?: number;
   excerpt?: string | null;
@@ -20,15 +35,22 @@ interface RawSanityArticle {
 
 // Convert Portable Text blocks → plain string
 export function blockContentToPlainText(
-  blocks: PortableTextBlock[] | undefined
+  blocks:
+    | PortableTextBlock<
+        PortableTextMarkDefinition,
+        ArbitraryTypedObject | PortableTextSpan,
+        string,
+        string
+      >[]
+    | undefined
 ): string {
   if (!blocks || !Array.isArray(blocks)) return "";
   return blocks
     .map((block) => {
       if (block._type === "block" && Array.isArray(block.children)) {
         return block.children
-          .map((child: PortableTextChild) =>
-            "text" in child ? child.text : ""
+          .map((child) =>
+            "text" in child ? (child as PortableTextSpan).text : ""
           )
           .join("");
       }
@@ -39,7 +61,14 @@ export function blockContentToPlainText(
 
 // Estimate read time from blocks
 export function estimateReadTimeFromBlocks(
-  blocks: PortableTextBlock[] | undefined,
+  blocks:
+    | PortableTextBlock<
+        PortableTextMarkDefinition,
+        ArbitraryTypedObject | PortableTextSpan,
+        string,
+        string
+      >[]
+    | undefined,
   wpm = 200
 ): number {
   const text = blockContentToPlainText(blocks);
@@ -58,11 +87,14 @@ export function transformSanityArticleToStory(raw: RawSanityArticle): Story {
     img: raw.mainImage?.asset?.url ?? "/placeholder-hero.jpg",
     category:
       raw.categories && raw.categories.length
-        ? (raw.categories[0]?.title ?? "General")
-        : "General",
-    date: raw.publishedAt ?? null,
+        ? {
+            title: raw.categories[0]?.title ?? "General",
+            slug: raw.categories[0]?.slug?.current ?? "general",
+          }
+        : null,
+    publishedAt: raw.publishedAt ?? null,
     author: raw.author ?? null,
-    content: raw.body,
+    content: raw.body ?? null,
     tags: raw.tags ?? [],
     readTime: raw.readTime ?? estimateReadTimeFromBlocks(raw.body),
     excerpt: raw.excerpt ?? null,

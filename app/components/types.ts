@@ -6,9 +6,14 @@ export interface Story {
   slug: string;
   title: string;
   subtitle?: string | null;
-  img: string | null;
-  category?: string | null;
-  date?: string | null;
+  img: string | null; // maps from Sanity "image"
+  category?: {
+    title: string;
+    slug: string;
+  } | null;
+  publishedAt?: string | null; // editorial publish date
+  createdAt?: string; // system creation date (_createdAt)
+  updatedAt?: string; // system last updated date (_updatedAt)
   author?: Author | null;
   content?: PortableTextBlock[] | null; // ✅ allow null
   tags?: string[];
@@ -18,6 +23,7 @@ export interface Story {
   isVideo?: boolean;
   duration?: string | null;
 }
+
 export interface Topic {
   id: number;
   name: string;

@@ -8,6 +8,7 @@ import TopAdBanner from "./TopAdBanner";
 
 import { getNavigation } from "./lib/getNavigation";
 import { NavItem } from "./types/navigation";
+import BreakingNewsTicker from "./components/BreakingNewsTicker";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -52,6 +53,7 @@ export default async function RootLayout({
       >
         <TopAdBanner />
         <NavBar menuItems={menuItems} />
+        <BreakingNewsTicker />
         <main className="container mx-auto mt-10 px-4">{children}</main>
         <Footer />
       </body>

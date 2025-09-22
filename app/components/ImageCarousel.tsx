@@ -1,4 +1,14 @@
-function ImageCarousel({ stories }: { stories: Story[] }) {
+"use client";
+import Image from "next/image";
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import { Story } from "./types";
+
+interface ImageCarouselProps {
+  stories: Story[];
+}
+
+export default function ImageCarousel({ stories }: ImageCarouselProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
@@ -9,13 +19,17 @@ function ImageCarousel({ stories }: { stories: Story[] }) {
   }, [stories.length]);
 
   const currentStory = stories[currentIndex];
-  const slug = generateSlug(currentStory.title);
+  const slug = currentStory.slug;
 
   return (
     <div className="relative h-full rounded-xl overflow-hidden">
       <div className="relative w-full h-full">
         <Image
-          src={typeof currentStory.img === "string" ? currentStory.img : null}
+          src={
+            typeof currentStory.img === "string"
+              ? currentStory.img
+              : "/placeholder.png"
+          }
           alt={currentStory.title}
           fill
           className="object-cover"
@@ -25,14 +39,7 @@ function ImageCarousel({ stories }: { stories: Story[] }) {
         {currentStory.isVideo && (
           <div className="absolute top-4 left-4 flex items-center">
             <div className="bg-red-600 text-white text-xs px-2 py-1 rounded-md flex items-center">
-              <svg
-                className="w-3 h-3 mr-1"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-              >
-                <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z" />
-              </svg>
-              <span>VIDEO</span>
+              ▶ VIDEO
             </div>
             {currentStory.duration && (
               <span className="ml-2 text-white text-xs bg-black/50 px-2 py-1 rounded-md">
@@ -45,7 +52,9 @@ function ImageCarousel({ stories }: { stories: Story[] }) {
         <div className="absolute bottom-6 left-6 right-6">
           {currentStory.category && (
             <span className="text-blue-300 text-sm font-medium mb-2 block">
-              {currentStory.category}
+              {typeof currentStory.category === "string"
+                ? currentStory.category
+                : currentStory.category?.title}
             </span>
           )}
           <h2 className="text-2xl font-bold text-white mb-2 line-clamp-2">
