@@ -1,27 +1,45 @@
-// app/article/[slug]/page.tsx
-import { categoryData } from "@/app/data/articles";
+import { sanityClient } from "@/app/lib/sanity.client";
 import ArticlePageClient from "./ArticlePageClient";
+import { Story } from "@/app/components/types";
+import { transformSanityArticleToStory } from "@/app/lib/sanity.utils";
 
-const generateSlug = (title: string) =>
-  title
-    .toLowerCase()
-    .replace(/[^\w ]+/g, "")
-    .replace(/ +/g, "-");
+// GROQ query for single article by slug
+const query = `*[_type == "article" && slug.current == $slug][0]{
+  _id,
+  title,
+  "slug": slug.current,
+  subtitle,
+  publishedAt,
+  excerpt,
+  readTime,
+  isVideo,
+  duration,
+  isFeatured,
+  tags,
+  author->{
+    name,
+    image
+  },
+  category->{
+    _id,
+    title,
+    "slug": slug.current
+  },
+  image,
+  content
+}`;
 
 export default async function ArticlePage({
   params,
 }: {
-  params: Promise<{ slug: string }>;
+  params: { slug: string };
 }) {
-  const { slug } = await params;
+  const { slug } = params;
 
-  // Flatten categories
-  const allArticles = Object.values(categoryData).flat();
+  // Fetch article by slug
+  const rawArticle = await sanityClient.fetch(query, { slug });
 
-  // Find article by slug
-  const article = allArticles.find((a) => generateSlug(a.title) === slug);
-
-  if (!article) {
+  if (!rawArticle) {
     return (
       <div className="min-h-screen flex items-center justify-center text-neutral-600">
         Article not found
@@ -29,6 +47,8 @@ export default async function ArticlePage({
     );
   }
 
-  // Pass to client component
+  // Transform into Story type
+  const article: Story = transformSanityArticleToStory(rawArticle);
+
   return <ArticlePageClient article={article} />;
 }
