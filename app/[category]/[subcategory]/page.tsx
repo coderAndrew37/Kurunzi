@@ -1,10 +1,10 @@
 import { Story } from "@/app/components/types";
-import { urlFor } from "@/app/lib/sanity.image";
 import { sanityClient } from "@/app/lib/sanity.client";
-import Image from "next/image";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { subcategoryStoriesQuery } from "@/app/lib/getCategoryStories";
+import ArticleCard from "../_components/ArticleCard";
+import EmptyState from "../_components/EmptyState";
+import PageHeader from "../_components/Header";
 
 interface PageProps {
   params: {
@@ -20,43 +20,41 @@ export default async function SubcategoryPage({ params }: PageProps) {
     subcategory,
   });
 
-  if (!articles.length) notFound();
+  if (!articles) notFound();
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8">
-      <header className="mb-8">
-        <h1 className="text-3xl font-bold">
-          {subcategory.charAt(0).toUpperCase() + subcategory.slice(1)}
-        </h1>
-        <p className="text-neutral-600">
-          Latest stories in {subcategory} under {category}.
-        </p>
-      </header>
+    <div className="min-h-screen bg-white">
+      {/* Reusable header */}
+      <PageHeader
+        title={subcategory.charAt(0).toUpperCase() + subcategory.slice(1)}
+        description={`Latest stories in ${subcategory} under ${category}.`}
+        breadcrumbs={[
+          { href: "/", label: "Home" },
+          { href: `/category/${category}`, label: category },
+          { href: `/${category}/${subcategory}`, label: subcategory },
+        ]}
+        count={articles.length}
+      />
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {articles.map((article) => (
-          <Link key={article.id} href={`/${category}/${article.slug}`}>
-            <div className="group">
-              <div className="relative h-48 mb-4 rounded-lg overflow-hidden">
-                {article.img && (
-                  <Image
-                    src={urlFor(article.img).url()}
-                    alt={article.title}
-                    fill
-                    className="object-cover group-hover:scale-105 transition-transform"
-                  />
-                )}
-              </div>
-              <h3 className="font-bold text-lg group-hover:text-blue-600">
-                {article.title}
-              </h3>
-              <p className="text-sm text-neutral-600 line-clamp-2">
-                {article.excerpt}
-              </p>
-            </div>
-          </Link>
-        ))}
-      </div>
+      <main className="max-w-7xl mx-auto px-4 py-12 -mt-10">
+        {articles.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {articles.map((article) => (
+              <ArticleCard
+                key={article.id}
+                article={article}
+                categoryLabel={subcategory}
+                href={`/${category}/${article.slug}`}
+              />
+            ))}
+          </div>
+        ) : (
+          <EmptyState
+            title="No articles yet"
+            message={`We haven't published any articles in ${subcategory} yet.`}
+          />
+        )}
+      </main>
     </div>
   );
 }
