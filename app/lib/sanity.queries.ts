@@ -46,23 +46,20 @@ role,
 }
 }`;
 
-export const navMenuQuery = groq`
-*[_type == "navMenu"][0]{
-  title,
-  "items": items[]{
+export const navQuery = groq`
+  *[_type == "category"] | order(title asc) {
+    _id,
     title,
-    href,
-    isLive,
-    "subItems": subItems[]{
+    "slug": slug.current,
+    subcategories[]->{
+      _id,
       title,
-      href,
-      isLive,
-      "subItems": subItems[]{
+      "slug": slug.current,
+      topics[]->{
+        _id,
         title,
-        href,
-        isLive
+        "slug": slug.current
       }
     }
   }
-}
 `;

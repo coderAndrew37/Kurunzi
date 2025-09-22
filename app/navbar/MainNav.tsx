@@ -32,16 +32,6 @@ export default function MainNav({
 
   return (
     <div className="flex items-center justify-between">
-      {/* Logo */}
-      <Link
-        href="/"
-        className="text-2xl font-bold tracking-tight text-slate-900"
-      >
-        <span className="bg-gradient-to-r from-blue-600 to-red-600 bg-clip-text text-transparent">
-          Kurunzi News
-        </span>
-      </Link>
-
       {/* Desktop Navigation */}
       <div className="hidden lg:flex items-center space-x-1">
         <NavigationMenu className="hidden lg:block">

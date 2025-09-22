@@ -35,6 +35,15 @@ export default function Header({ menuItems }: HeaderProps) {
       <div className="container mx-auto px-4">
         {/* Top Utility Bar */}
         <div className="flex items-center justify-between pb-2 mb-2 border-b border-gray-200">
+          {/* Logo */}
+          <Link
+            href="/"
+            className="text-2xl font-bold tracking-tight text-slate-900"
+          >
+            <span className="bg-gradient-to-r from-blue-600 to-red-600 bg-clip-text text-transparent">
+              Kurunzi News
+            </span>
+          </Link>
           <div className="flex items-center space-x-4">
             <Link
               href="https://worldcup.kurunzi.com"

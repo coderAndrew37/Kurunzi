@@ -48,11 +48,24 @@ export interface Topic {
   trendPercentage: number;
 }
 
-export interface NavItem {
+export interface NavTopic {
+  _id: string;
   title: string;
-  href?: string;
-  isLive?: boolean;
-  subItems?: NavItem[];
+  slug: string;
+}
+
+export interface NavSubcategory {
+  _id: string;
+  title: string;
+  slug: string;
+  topics?: NavTopic[];
+}
+
+export interface NavCategory {
+  _id: string;
+  title: string;
+  slug: string;
+  subcategories?: NavSubcategory[];
 }
 
 export interface Author {
