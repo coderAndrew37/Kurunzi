@@ -24,6 +24,21 @@ export interface Story {
   duration?: string | null;
 }
 
+export interface Subcategory {
+  _id: string;
+  title: string;
+  description?: string;
+  slug: string;
+}
+
+export interface Category {
+  _id: string;
+  title: string;
+  description?: string;
+  slug: string;
+  subcategories?: Subcategory[];
+}
+
 export interface Topic {
   id: number;
   name: string;
