@@ -9,7 +9,7 @@ import type {
 
 export interface RawSanityArticle {
   _id: string;
-  slug?: { current: string };
+  slug: string;
   title: string;
   subtitle?: string | null;
   mainImage?: { asset?: { url?: string } };
@@ -81,7 +81,7 @@ export function estimateReadTimeFromBlocks(
 export function transformSanityArticleToStory(raw: RawSanityArticle): Story {
   return {
     id: raw._id,
-    slug: raw.slug?.current ?? "",
+    slug: raw.slug,
     title: raw.title,
     subtitle: raw.subtitle ?? null,
     img: raw.mainImage?.asset?.url ?? "/placeholder-hero.jpg",

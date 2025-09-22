@@ -65,12 +65,11 @@ export default function ImageCarousel({ stories }: ImageCarouselProps) {
               {currentStory.excerpt}
             </p>
           )}
-          <Link
-            href={`/article/${slug}`}
-            className="inline-block mt-3 text-white text-sm font-medium hover:underline"
-          >
-            Read story →
-          </Link>
+          {slug ? (
+            <Link href={`/article/${slug}`}>Read story →</Link>
+          ) : (
+            <span className="text-gray-400">No link</span>
+          )}
         </div>
       </div>
 
