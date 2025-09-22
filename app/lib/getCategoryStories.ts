@@ -87,30 +87,15 @@ export const categoriesWithStoriesQuery = groq`
 // Fetch latest stories by category + subcategory
 export const subcategoryStoriesQuery = groq`
   *[
-    _type == "article" && 
-    category->slug.current == $category && 
-    subcategory->slug.current == $subcategory
+    _type == "article" &&
+    $subcategory in subcategory->slug.current
   ] | order(publishedAt desc)[0...20] {
-    "id": _id,
+    _id,
     title,
     subtitle,
     "slug": slug.current,
-    "img": image,
-    "category": category->{
-      title,
-      "slug": slug.current
-    },
-    "subcategory": subcategory->{
-      title,
-      "slug": slug.current
-    },
-    "topic": topic->{
-      title,
-      "slug": slug.current
-    },
+    "img": mainImage,
     publishedAt,
-    "createdAt": _createdAt,
-    "updatedAt": _updatedAt,
     excerpt,
     readTime,
     isVideo,
@@ -121,7 +106,22 @@ export const subcategoryStoriesQuery = groq`
       name,
       image
     },
-    content
+    "category": categories[]->{
+      _id,
+      title,
+      "slug": slug.current
+    },
+    "subcategory": subcategory->{
+      _id,
+      title,
+      "slug": slug.current
+    },
+    "topic": topic->{
+      _id,
+      title,
+      "slug": slug.current
+    },
+    body
   }
 `;
 
