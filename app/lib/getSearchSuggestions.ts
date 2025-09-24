@@ -5,21 +5,39 @@ export async function getSearchSuggestions(query: string) {
   if (!query) return [];
 
   const searchQuery = groq`
-    *[
-      _type == "article" &&
-      (
-        title match $q ||
-        subtitle match $q ||
-        excerpt match $q ||
-        $q in tags[] ||
-        author->name match $q
-      )
-    ][0...8]{
-      "id": _id,
-      title,
-      "slug": slug.current,
-      excerpt,
-      tags
+    {
+      "articles": *[
+        _type == "article" &&
+        (
+          title match $q ||
+          subtitle match $q ||
+          excerpt match $q ||
+          $q in tags[] ||
+          author->name match $q
+        )
+      ][0...5]{
+        "id": _id,
+        _type,
+        title,
+        "slug": slug.current
+      },
+      "authors": *[
+        _type == "author" && name match $q
+      ][0...5]{
+        "id": _id,
+        _type,
+        name,
+        "slug": slug.current,
+        image
+      },
+      "categories": *[
+        _type == "category" && (title match $q || description match $q)
+      ][0...5]{
+        "id": _id,
+        _type,
+        title,
+        "slug": slug.current
+      }
     }
   `;
 

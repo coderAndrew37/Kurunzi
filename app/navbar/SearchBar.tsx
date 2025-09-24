@@ -3,8 +3,13 @@
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Skeleton from "react-loading-skeleton";
+import "react-loading-skeleton/dist/skeleton.css";
+import { SanityImageSource } from "@sanity/image-url/lib/types/types";
+import { urlFor } from "../lib/sanity.image";
 
 interface SearchBarProps {
   isSearchOpen: boolean;
@@ -13,10 +18,11 @@ interface SearchBarProps {
 
 interface Suggestion {
   id: string;
-  title: string;
-  slug: string;
-  excerpt?: string;
-  tags?: string[];
+  _type: "article" | "author" | "category";
+  title?: string;
+  slug?: string;
+  name?: string;
+  image?: SanityImageSource;
 }
 
 export default function SearchBar({
@@ -24,13 +30,17 @@ export default function SearchBar({
   popularTags,
 }: SearchBarProps) {
   const [query, setQuery] = useState("");
-  const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
+  const [suggestions, setSuggestions] = useState<{
+    articles: Suggestion[];
+    authors: Suggestion[];
+    categories: Suggestion[];
+  } | null>(null);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
     if (!query) {
-      setSuggestions([]);
+      setSuggestions(null);
       return;
     }
 
@@ -76,22 +86,84 @@ export default function SearchBar({
 
       {/* Suggestions dropdown */}
       {query && (
-        <div className="absolute z-50 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg max-h-64 overflow-y-auto">
+        <div className="absolute z-50 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg max-h-80 overflow-y-auto">
           {loading ? (
-            <p className="p-3 text-sm text-gray-500">Searching...</p>
-          ) : suggestions.length > 0 ? (
-            suggestions.map((s) => (
-              <Link
-                key={s.id}
-                href={`/article/${s.slug}`}
-                className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-              >
-                {s.title}
-              </Link>
-            ))
-          ) : (
-            <p className="p-3 text-sm text-gray-500">No results found</p>
-          )}
+            <div className="p-3 space-y-2">
+              <Skeleton height={20} count={3} />
+            </div>
+          ) : suggestions ? (
+            <div className="p-2 space-y-4">
+              {/* Articles */}
+              {suggestions.articles?.length > 0 && (
+                <div>
+                  <h4 className="text-xs font-semibold text-gray-500 px-2 mb-1">
+                    Articles
+                  </h4>
+                  {suggestions.articles.map((s) => (
+                    <Link
+                      key={s.id}
+                      href={`/article/${s.slug}`}
+                      className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md"
+                    >
+                      {s.title}
+                    </Link>
+                  ))}
+                </div>
+              )}
+
+              {/* Authors */}
+              {suggestions.authors?.length > 0 && (
+                <div>
+                  <h4 className="text-xs font-semibold text-gray-500 px-2 mb-1">
+                    Authors
+                  </h4>
+                  {suggestions.authors.map((s) => (
+                    <Link
+                      key={s.id}
+                      href={`/author/${s.slug}`}
+                      className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md"
+                    >
+                      {s.image && (
+                        <Image
+                          src={urlFor(s.image).width(40).height(40).url()}
+                          alt={s.name || "Author"}
+                          width={28}
+                          height={28}
+                          className="rounded-full mr-2 object-cover"
+                        />
+                      )}
+                      <span>{s.name}</span>
+                    </Link>
+                  ))}
+                </div>
+              )}
+
+              {/* Categories */}
+              {suggestions.categories?.length > 0 && (
+                <div>
+                  <h4 className="text-xs font-semibold text-gray-500 px-2 mb-1">
+                    Categories
+                  </h4>
+                  {suggestions.categories.map((s) => (
+                    <Link
+                      key={s.id}
+                      href={`/category/${s.slug}`}
+                      className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md"
+                    >
+                      {s.title}
+                    </Link>
+                  ))}
+                </div>
+              )}
+
+              {/* No results */}
+              {suggestions.articles.length === 0 &&
+                suggestions.authors.length === 0 &&
+                suggestions.categories.length === 0 && (
+                  <p className="p-3 text-sm text-gray-500">No results found</p>
+                )}
+            </div>
+          ) : null}
         </div>
       )}
 
