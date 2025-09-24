@@ -69,9 +69,18 @@ export interface NavCategory {
 }
 
 export interface Author {
+  id?: string;
   name: string;
   role?: string;
-  avatar?: string | null;
+  slug?: string;
+  image?: SanityImageSource;
+  bio?: string; // simplified from blockContent → we'll resolve to plain text/portable text
+  social?: {
+    twitter?: string;
+    facebook?: string;
+    linkedin?: string;
+    website?: string;
+  };
 }
 
 export interface HeroItem {
