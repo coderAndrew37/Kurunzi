@@ -3,12 +3,13 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono, Inter } from "next/font/google";
 import Footer from "./Footer";
 import "./globals.css";
-import NavBar from "./navbar/NavBar";
 import TopAdBanner from "./TopAdBanner";
 
 import { getNavigation } from "./lib/getNavigation";
+import { getPopularTags } from "./lib/getPopularTags";
 import { NavItem } from "./types/navigation";
 import BreakingNewsTicker from "./components/BreakingNewsTicker";
+import Header from "./navbar/NavBar";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -38,12 +39,19 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   let menuItems: NavItem[] = [];
+  let popularTags: string[] = [];
 
   try {
     const nav = await getNavigation();
-    menuItems = nav ?? []; // Remove .items access
+    menuItems = nav ?? [];
   } catch (err) {
     console.warn("⚠️ Failed to fetch nav menu from Sanity:", err);
+  }
+
+  try {
+    popularTags = await getPopularTags();
+  } catch (err) {
+    console.warn("⚠️ Failed to fetch popular tags from Sanity:", err);
   }
 
   return (
@@ -52,7 +60,7 @@ export default async function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <TopAdBanner />
-        <NavBar menuItems={menuItems} />
+        <Header menuItems={menuItems} popularTags={popularTags} />
         <BreakingNewsTicker />
         <main className="container mx-auto mt-10 px-4">{children}</main>
         <Footer />

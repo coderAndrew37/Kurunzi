@@ -7,6 +7,7 @@ import { popularTags } from "./popularTags";
 
 interface SearchBarProps {
   isSearchOpen: boolean;
+  popularTags: string[];
 }
 
 export default function SearchBar({ isSearchOpen }: SearchBarProps) {

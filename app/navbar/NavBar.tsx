@@ -4,17 +4,17 @@ import { cn } from "@/app/lib/utils";
 import { Calendar, Youtube } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import MainNav from "./MainNav";
-import SearchBar from "./SearchBar";
-import MobileNav from "./MobileNav";
-import { popularTags } from "./popularTags";
 import { NavItem } from "../types/navigation";
+import MainNav from "./MainNav";
+import MobileNav from "./MobileNav";
+import SearchBar from "./SearchBar";
 
 interface HeaderProps {
   menuItems: NavItem[];
+  popularTags: string[];
 }
 
-export default function Header({ menuItems }: HeaderProps) {
+export default function Header({ menuItems, popularTags }: HeaderProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
@@ -44,6 +44,8 @@ export default function Header({ menuItems }: HeaderProps) {
               Kurunzi News
             </span>
           </Link>
+
+          {/* Links */}
           <div className="flex items-center space-x-4">
             <Link
               href="https://worldcup.kurunzi.com"
@@ -64,6 +66,7 @@ export default function Header({ menuItems }: HeaderProps) {
             </Link>
           </div>
 
+          {/* Trending Tags */}
           <div className="hidden md:flex items-center space-x-2">
             <span className="text-xs text-gray-500">Trending:</span>
             <div className="flex space-x-1">
@@ -90,7 +93,7 @@ export default function Header({ menuItems }: HeaderProps) {
         />
 
         {/* Search Bar */}
-        <SearchBar isSearchOpen={isSearchOpen} />
+        <SearchBar isSearchOpen={isSearchOpen} popularTags={popularTags} />
 
         {/* Mobile Navigation */}
         <MobileNav isMobileMenuOpen={isMobileMenuOpen} menuItems={menuItems} />
