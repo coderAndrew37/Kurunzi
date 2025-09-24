@@ -32,7 +32,7 @@ const categoryWithSubcategoriesQuery = groq`
 `;
 
 export default async function CategoryPage({ params }: PageProps) {
-  const { category: categorySlug } = params;
+  const { category: categorySlug } = await params;
 
   // Fetch category
   const currentCategory: Category | null = await sanityClient.fetch(

@@ -51,15 +51,21 @@ export const navQuery = groq`
     _id,
     title,
     "slug": slug.current,
-    subcategories[]->{
-      _id,
-      title,
-      "slug": slug.current,
-      topics[]->{
+    "subcategories": coalesce(
+      subcategories[]->{
         _id,
         title,
-        "slug": slug.current
-      }
-    }
+        "slug": slug.current,
+        "topics": coalesce(
+          topics[]->{
+            _id,
+            title,
+            "slug": slug.current
+          },
+          []
+        )
+      },
+      []
+    )
   }
 `;

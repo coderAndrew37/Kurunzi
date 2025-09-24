@@ -1,7 +1,19 @@
+export interface Topic {
+  _id: string;
+  title: string;
+  slug: string;
+}
+
+export interface Subcategory {
+  _id: string;
+  title: string;
+  slug: string;
+  topics: Topic[];
+}
+
 export interface NavItem {
   _id: string;
   title: string;
-  href: string;
-  isLive?: boolean;
-  subItems?: NavItem[];
+  slug: string;
+  subcategories: Subcategory[];
 }

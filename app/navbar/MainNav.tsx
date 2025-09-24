@@ -1,16 +1,15 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
 import {
   NavigationMenu,
-  NavigationMenuList,
-  NavigationMenuItem,
-  NavigationMenuTrigger,
   NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuList,
+  NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
-import { Button } from "@/components/ui/button";
-import { Menu, Search, Star, X } from "lucide-react";
+import { Menu, Search, X } from "lucide-react";
 import Link from "next/link";
-import { cn } from "@/app/lib/utils";
 import { NavItem } from "../types/navigation";
 
 interface MainNavProps {
@@ -36,73 +35,50 @@ export default function MainNav({
       <div className="hidden lg:flex items-center space-x-1">
         <NavigationMenu className="hidden lg:block">
           <NavigationMenuList>
-            {menuItems.map((item) => (
-              <NavigationMenuItem key={item._id}>
-                <NavigationMenuTrigger className="font-semibold text-slate-700 hover:text-blue-600 data-[state=open]:text-blue-600">
-                  {item.title}
-                </NavigationMenuTrigger>
-                {item.subItems && item.subItems.length > 0 && (
-                  <NavigationMenuContent>
-                    <div
-                      className={cn(
-                        "p-4",
-                        item.title === "Sports" ? "w-[800px]" : "w-[400px]"
-                      )}
-                    >
-                      <div
-                        className={cn(
-                          "grid gap-3",
-                          item.title === "Sports"
-                            ? "grid-cols-3"
-                            : "grid-cols-2"
-                        )}
-                      >
-                        {item.subItems.map((subItem) => (
-                          <div key={subItem._id}>
-                            <Link
-                              href={subItem.href}
-                              className={cn(
-                                "block p-3 rounded-lg hover:bg-slate-50 transition-colors",
-                                subItem.isLive
-                                  ? "bg-red-50 hover:bg-red-100"
-                                  : ""
-                              )}
-                            >
-                              <p
-                                className={cn(
-                                  "font-medium text-slate-900",
-                                  subItem.isLive
-                                    ? "text-red-600 flex items-center"
-                                    : ""
-                                )}
+            {(menuItems ?? []).map((category) => (
+              <NavigationMenuItem key={category._id}>
+                {category.subcategories?.length > 0 ? (
+                  <>
+                    <NavigationMenuTrigger className="font-semibold text-slate-700 hover:text-blue-600 data-[state=open]:text-blue-600">
+                      {category.title}
+                    </NavigationMenuTrigger>
+                    <NavigationMenuContent>
+                      <div className="p-4 w-[600px]">
+                        <div className="grid gap-4 grid-cols-2">
+                          {category.subcategories.map((sub) => (
+                            <div key={sub._id}>
+                              <Link
+                                href={`/${category.slug}/${sub.slug}`}
+                                className="block p-2 font-medium text-slate-900 hover:text-blue-600"
                               >
-                                {subItem.isLive && (
-                                  <Star className="h-4 w-4 mr-1 fill-red-600" />
-                                )}
-                                {subItem.title}
-                              </p>
-
-                              {/* Nested subitems */}
-                              {subItem.subItems &&
-                                subItem.subItems.length > 0 && (
-                                  <div className="mt-2 pl-2 border-l border-gray-200">
-                                    {subItem.subItems.map((nestedItem) => (
-                                      <Link
-                                        key={nestedItem._id}
-                                        href={nestedItem.href}
-                                        className="block py-1 text-sm text-slate-600 hover:text-blue-600"
-                                      >
-                                        {nestedItem.title}
-                                      </Link>
-                                    ))}
-                                  </div>
-                                )}
-                            </Link>
-                          </div>
-                        ))}
+                                {sub.title}
+                              </Link>
+                              {sub.topics?.length > 0 && (
+                                <div className="mt-1 pl-2 border-l border-gray-200">
+                                  {sub.topics.map((topic) => (
+                                    <Link
+                                      key={topic._id}
+                                      href={`/${category.slug}/${sub.slug}/${topic.slug}`}
+                                      className="block py-1 text-sm text-slate-600 hover:text-blue-600"
+                                    >
+                                      {topic.title}
+                                    </Link>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  </NavigationMenuContent>
+                    </NavigationMenuContent>
+                  </>
+                ) : (
+                  <Link
+                    href={`/${category.slug}`}
+                    className="font-semibold text-slate-700 hover:text-blue-600 block px-3 py-2"
+                  >
+                    {category.title}
+                  </Link>
                 )}
               </NavigationMenuItem>
             ))}
