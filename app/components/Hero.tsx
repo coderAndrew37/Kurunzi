@@ -228,23 +228,6 @@ export default function Hero({ stories }: HeroProps) {
           </div>
         )}
       </div>
-
-      {/* Add this CSS to your globals.css for the marquee effect */}
-      <style jsx>{`
-        @keyframes marquee-inline {
-          0% {
-            transform: translateX(100%);
-          }
-          100% {
-            transform: translateX(-100%);
-          }
-        }
-        .animate-marquee-inline {
-          animation: marquee-inline 30s linear infinite;
-          display: flex;
-          width: max-content;
-        }
-      `}</style>
     </section>
   );
 }
