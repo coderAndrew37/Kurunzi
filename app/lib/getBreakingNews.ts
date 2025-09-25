@@ -16,6 +16,7 @@ export interface BreakingNewsItem {
   href: string;
   category?: string;
   publishedAt?: string;
+  _id?: string;
 }
 
 export async function getBreakingNews(): Promise<BreakingNewsItem[]> {

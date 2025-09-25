@@ -136,6 +136,22 @@
 
 .animate-marquee {
   animation: marquee 30s linear infinite;
+  display: flex;
+  width: max-content;
+}
+
+.animation-paused {
+  animation-play-state: paused;
+}
+
+/* Smooth transitions */
+.animate-marquee {
+  transition: animation-play-state 0.3s ease;
+}
+
+/* Ensure smooth scrolling */
+.animate-marquee > div {
+  flex-shrink: 0;
 }
 
 .line-clamp-2 {
