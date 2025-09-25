@@ -7,8 +7,10 @@ import {
   NavigationMenuItem,
   NavigationMenuList,
   NavigationMenuTrigger,
+  NavigationMenuLink,
+  navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
-import { Menu, Search, X } from "lucide-react";
+import { Menu, Search, X, ArrowRight, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { NavItem } from "../types/navigation";
 
@@ -27,55 +29,98 @@ export default function MainNav({
   toggleMobileMenu,
   menuItems,
 }: MainNavProps) {
-  // console.log("MainNav received menuItems:", menuItems);
-
   return (
     <div className="flex items-center justify-between">
       {/* Desktop Navigation */}
       <div className="hidden lg:flex items-center space-x-1">
-        <NavigationMenu className="hidden lg:block">
+        <NavigationMenu>
           <NavigationMenuList>
             {(menuItems ?? []).map((category) => (
               <NavigationMenuItem key={category._id}>
                 {category.subcategories?.length > 0 ? (
                   <>
-                    <NavigationMenuTrigger className="font-semibold text-slate-700 hover:text-blue-600 data-[state=open]:text-blue-600">
+                    <NavigationMenuTrigger className="font-semibold text-slate-700 hover:text-blue-600 data-[state=open]:text-blue-600 data-[state=open]:bg-slate-50 rounded-lg transition-colors">
                       {category.title}
                     </NavigationMenuTrigger>
                     <NavigationMenuContent>
-                      <div className="p-4 w-[600px]">
-                        <div className="grid gap-4 grid-cols-2">
+                      <div className="p-6 w-[600px] lg:w-[700px]">
+                        {/* Featured Subcategory Section */}
+                        {category.subcategories.length > 0 && (
+                          <div className="mb-6 p-4 rounded-lg bg-gradient-to-r from-blue-50 to-slate-50 border border-blue-100">
+                            <div className="flex items-center justify-between">
+                              <div>
+                                <h3 className="font-bold text-lg text-blue-900 mb-1">
+                                  Explore {category.title}
+                                </h3>
+                                <p className="text-sm text-blue-700">
+                                  Discover all content in{" "}
+                                  {category.title.toLowerCase()}
+                                </p>
+                              </div>
+                              <ArrowRight className="h-5 w-5 text-blue-600" />
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Subcategories Grid */}
+                        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                           {category.subcategories.map((sub) => (
-                            <div key={sub._id}>
+                            <div key={sub._id} className="space-y-3">
+                              {/* Subcategory Main Link */}
                               <Link
                                 href={`/${category.slug}/${sub.slug}`}
-                                className="block p-2 font-medium text-slate-900 hover:text-blue-600"
+                                className="group block"
                               >
-                                {sub.title}
-                              </Link>
-                              {sub.topics?.length > 0 && (
-                                <div className="mt-1 pl-2 border-l border-gray-200">
-                                  {sub.topics.map((topic) => (
-                                    <Link
-                                      key={topic._id}
-                                      href={`/${category.slug}/${sub.slug}/${topic.slug}`}
-                                      className="block py-1 text-sm text-slate-600 hover:text-blue-600"
-                                    >
-                                      {topic.title}
-                                    </Link>
-                                  ))}
+                                <div className="flex items-center justify-between">
+                                  <span className="font-semibold text-slate-900 group-hover:text-blue-600 transition-colors">
+                                    {sub.title}
+                                  </span>
+                                  <ChevronRight className="h-4 w-4 text-slate-400 group-hover:text-blue-600 group-hover:translate-x-1 transition-all" />
                                 </div>
-                              )}
+                                {sub.topics?.length > 0 && (
+                                  <div className="mt-2 space-y-1">
+                                    {sub.topics.slice(0, 4).map((topic) => (
+                                      <Link
+                                        key={topic._id}
+                                        href={`/${category.slug}/${sub.slug}/${topic.slug}`}
+                                        className="flex items-center text-sm text-slate-600 hover:text-blue-600 py-1 transition-colors group/topic"
+                                      >
+                                        <div className="w-1 h-1 bg-slate-300 rounded-full mr-2 group-hover/topic:bg-blue-600 transition-colors" />
+                                        {topic.title}
+                                      </Link>
+                                    ))}
+                                    {sub.topics.length > 4 && (
+                                      <div className="text-xs text-slate-500 mt-1 pl-3">
+                                        +{sub.topics.length - 4} more topics
+                                      </div>
+                                    )}
+                                  </div>
+                                )}
+                              </Link>
                             </div>
                           ))}
                         </div>
+
+                        {/* View All Link */}
+                        {category.subcategories.length > 6 && (
+                          <div className="mt-6 pt-4 border-t border-slate-200">
+                            <Link
+                              href={`/${category.slug}`}
+                              className="inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors"
+                            >
+                              View all {category.subcategories.length}{" "}
+                              subcategories
+                              <ArrowRight className="h-4 w-4 ml-1" />
+                            </Link>
+                          </div>
+                        )}
                       </div>
                     </NavigationMenuContent>
                   </>
                 ) : (
                   <Link
                     href={`/${category.slug}`}
-                    className="font-semibold text-slate-700 hover:text-blue-600 block px-3 py-2"
+                    className={`${navigationMenuTriggerStyle()} font-semibold text-slate-700 hover:text-blue-600 hover:bg-slate-50`}
                   >
                     {category.title}
                   </Link>
@@ -102,11 +147,6 @@ export default function MainNav({
           )}
         </Button>
 
-        {/* Subscribe Button */}
-        <Button className="bg-gradient-to-r from-blue-600 to-blue-800 text-white hover:from-blue-700 hover:to-blue-900 hidden sm:inline-flex">
-          Subscribe
-        </Button>
-
         {/* Mobile Menu Button */}
         <Button
           variant="ghost"
@@ -122,5 +162,34 @@ export default function MainNav({
         </Button>
       </div>
     </div>
+  );
+}
+
+// Optional: You can also create a separate ListItem component like in the example
+function NavListItem({
+  title,
+  href,
+  children,
+}: {
+  title: string;
+  href: string;
+  children?: React.ReactNode;
+}) {
+  return (
+    <li>
+      <NavigationMenuLink asChild>
+        <Link
+          href={href}
+          className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-slate-100 focus:bg-slate-100"
+        >
+          <div className="text-sm font-medium leading-none">{title}</div>
+          {children && (
+            <p className="line-clamp-2 text-sm leading-snug text-slate-600">
+              {children}
+            </p>
+          )}
+        </Link>
+      </NavigationMenuLink>
+    </li>
   );
 }

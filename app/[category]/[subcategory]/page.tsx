@@ -14,7 +14,7 @@ interface PageProps {
 }
 
 export default async function SubcategoryPage({ params }: PageProps) {
-  const { category, subcategory } = params;
+  const { category, subcategory } = await params;
 
   const articles: Story[] = await sanityClient.fetch(subcategoryStoriesQuery, {
     subcategory,

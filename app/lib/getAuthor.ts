@@ -35,3 +35,9 @@ export async function getAuthor(slug: string) {
 export async function getAuthorArticles(slug: string) {
   return sanityClient.fetch(getAuthorArticlesQuery, { slug });
 }
+
+export async function getAllAuthorSlugs(): Promise<string[]> {
+  return await sanityClient.fetch(
+    groq`*[_type == "author" && defined(slug.current)][].slug.current`
+  );
+}

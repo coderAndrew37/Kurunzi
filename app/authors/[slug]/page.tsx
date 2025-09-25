@@ -1,12 +1,65 @@
 import Image from "next/image";
 import { notFound } from "next/navigation";
+import {
+  getAuthor,
+  getAuthorArticles,
+  getAllAuthorSlugs,
+} from "@/app/lib/getAuthor";
 import { urlFor } from "@/app/lib/sanity.image";
 import ArticleCard from "@/app/[category]/_components/ArticleCard";
-import { getAuthor, getAuthorArticles } from "@/app/lib/getAuthor";
+import type { Metadata } from "next";
 import { Story } from "@/app/components/types";
+import { PortableText } from "@portabletext/react";
 
 interface AuthorPageProps {
   params: { slug: string };
+}
+
+// ✅ Enable ISR (regenerate every 60s)
+export const revalidate = 60;
+
+// ✅ Pre-render all author slugs at build time
+export async function generateStaticParams() {
+  const slugs = await getAllAuthorSlugs();
+  return slugs.map((slug: string) => ({ slug }));
+}
+
+// ✅ Dynamic metadata
+export async function generateMetadata({
+  params,
+}: AuthorPageProps): Promise<Metadata> {
+  const author = await getAuthor(params.slug);
+  if (!author) return {};
+
+  const description =
+    author.bio?.slice(0, 150) ||
+    `Read articles and insights from ${author.name} on Kurunzi News.`;
+
+  return {
+    title: `${author.name} | Kurunzi News`,
+    description,
+    openGraph: {
+      title: `${author.name} | Kurunzi News`,
+      description,
+      type: "profile",
+      images: author.image
+        ? [
+            {
+              url: urlFor(author.image).width(800).height(800).url(),
+              alt: author.name,
+            },
+          ]
+        : [],
+    },
+    twitter: {
+      card: "summary",
+      title: `${author.name} | Kurunzi News`,
+      description,
+      images: author.image
+        ? [urlFor(author.image).width(400).height(400).url()]
+        : [],
+    },
+  };
 }
 
 export default async function AuthorPage({ params }: AuthorPageProps) {
@@ -34,9 +87,9 @@ export default async function AuthorPage({ params }: AuthorPageProps) {
             <p className="text-slate-600 text-sm mt-1">{author.role}</p>
           )}
           {author.bio && (
-            <p className="text-slate-700 text-sm mt-3 max-w-2xl">
-              {author.bio}
-            </p>
+            <div className="text-slate-700 text-sm mt-3 max-w-2xl prose">
+              <PortableText value={author.bio} />
+            </div>
           )}
 
           {/* Social links */}
