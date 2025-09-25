@@ -22,6 +22,7 @@ export interface Story {
   isFeatured?: boolean;
   isVideo?: boolean;
   duration?: string | null;
+  relatedArticles?: RelatedArticle[];
 }
 
 export interface Subcategory {
@@ -102,10 +103,14 @@ export interface HeroItem {
 }
 
 export interface RelatedArticle {
-  id: number;
+  // ✅ Always present
+  id: string;
+  slug: string;
   title: string;
-  img: string;
-  category: string;
-  date: string;
-  readTime: number;
+  excerpt?: string;
+  img?: string | null;
+  category?: string;
+  date?: string;
+  readTime?: number;
+  views?: number;
 }

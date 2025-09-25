@@ -1,20 +1,7 @@
-import { sanityClient } from "./sanity.client";
-import type { SanityImageSource } from "@sanity/image-url/lib/types/types";
+import { RelatedArticle } from "../components/types";
 import { SanityArticle } from "../types/sanityArticle";
-
-export interface RelatedArticle {
-  _id: string;
-  headline: string;
-  fullTitle: string;
-  slug: string;
-  excerpt?: string;
-  featuredImage?: (SanityImageSource & { alt?: string }) | null;
-  publishedAt: string;
-  category?: string;
-  readTime?: number;
-  alt?: string;
-  views?: number;
-}
+import { sanityClient } from "./sanity.client";
+import { urlFor } from "./sanity.image";
 
 export async function getRelatedArticles(
   currentSlug: string,
@@ -27,21 +14,21 @@ export async function getRelatedArticles(
     : `*[_type == "breakingNews" && slug.current != $currentSlug && isActive == true] 
        | order(publishedAt desc)[0...$limit]`;
 
-  const articles = await sanityClient.fetch(query, {
+  const articles = await sanityClient.fetch<SanityArticle[]>(query, {
     currentSlug,
     category,
     limit,
   });
 
-  return articles.map((article: SanityArticle) => ({
-    _id: article._id,
-    headline: article.headline,
-    fullTitle: article.fullTitle || article.headline,
+  return articles.map((article) => ({
+    id: article._id,
     slug: article.slug?.current ?? "",
+    title: article.fullTitle || article.headline,
     excerpt: article.excerpt,
-    featuredImage: article.featuredImage ?? null,
-    publishedAt: article.publishedAt,
+    img: article.featuredImage ? urlFor(article.featuredImage).url() : null,
     category: article.category,
-    readTime: 3, // simplify for now
+    date: article.publishedAt,
+    readTime: 3, // fallback
+    views: 0,
   }));
 }

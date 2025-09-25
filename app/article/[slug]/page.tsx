@@ -2,9 +2,10 @@ import { sanityClient } from "@/app/lib/sanity.client";
 import ArticlePageClient from "./ArticlePageClient";
 import { Story } from "@/app/components/types";
 import { transformSanityArticleToStory } from "@/app/lib/sanity.utils";
+import Link from "next/link";
 
 // GROQ query for single article by slug
-const query = `*[_type == "article" && slug.current == $slug][0]{
+const articleQuery = `*[_type == "article" && slug.current == $slug][0]{
   _id,
   title,
   "slug": slug.current,
@@ -29,6 +30,30 @@ const query = `*[_type == "article" && slug.current == $slug][0]{
   content
 }`;
 
+// GROQ query for latest articles
+const latestArticlesQuery = `*[_type == "article" && slug.current != $currentSlug] | order(publishedAt desc)[0...6] {
+  _id,
+  title,
+  "slug": slug.current,
+  publishedAt,
+  readTime,
+  category->{
+    title
+  },
+  image
+}`;
+
+// GROQ query for trending articles (using isFeatured as proxy for trending)
+const trendingArticlesQuery = `*[_type == "article" && slug.current != $currentSlug && isFeatured == true] | order(publishedAt desc)[0...4] {
+  _id,
+  title,
+  "slug": slug.current,
+  publishedAt,
+  category->{
+    title
+  }
+}`;
+
 export default async function ArticlePage({
   params,
 }: {
@@ -37,12 +62,23 @@ export default async function ArticlePage({
   const { slug } = params;
 
   // Fetch article by slug
-  const rawArticle = await sanityClient.fetch(query, { slug });
+  const rawArticle = await sanityClient.fetch(articleQuery, { slug });
 
   if (!rawArticle) {
     return (
-      <div className="min-h-screen flex items-center justify-center text-neutral-600">
-        Article not found
+      <div className="min-h-screen flex items-center justify-center text-gray-600">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold mb-2">Article Not Found</h1>
+          <p className="text-gray-600">
+            The article you&apos;re looking for doesn&apos;t exist.
+          </p>
+          <Link
+            href="/"
+            className="text-blue-600 hover:underline mt-4 inline-block"
+          >
+            Return to Homepage
+          </Link>
+        </div>
       </div>
     );
   }
@@ -50,5 +86,27 @@ export default async function ArticlePage({
   // Transform into Story type
   const article: Story = transformSanityArticleToStory(rawArticle);
 
-  return <ArticlePageClient article={article} />;
+  // Fetch latest articles
+  const rawLatestArticles = await sanityClient.fetch(latestArticlesQuery, {
+    currentSlug: slug,
+  });
+  const latestArticles: Story[] = rawLatestArticles.map(
+    transformSanityArticleToStory
+  );
+
+  // Fetch trending articles
+  const rawTrendingArticles = await sanityClient.fetch(trendingArticlesQuery, {
+    currentSlug: slug,
+  });
+  const trendingArticles: Story[] = rawTrendingArticles.map(
+    transformSanityArticleToStory
+  );
+
+  return (
+    <ArticlePageClient
+      article={article}
+      latestArticles={latestArticles}
+      trendingArticles={trendingArticles}
+    />
+  );
 }

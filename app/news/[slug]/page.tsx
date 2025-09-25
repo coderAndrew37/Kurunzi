@@ -1,16 +1,22 @@
+// File: app/news/[slug]/page.tsx
+import LatestBreakingNews from "@/app/components/LatestBreakingNews";
 import NewsletterSignup from "@/app/components/NewsletterSignup";
-import { sanityClient } from "@/app/lib/sanity.client";
+import TrendingNews from "@/app/components/TrendingNews";
+import { formatDate } from "@/app/components/utils/formatDate";
+import { formatTimeAgo } from "@/app/components/utils/formatTimeAgo";
+import { getBreakingNewsBySlug } from "@/app/lib/getBreakingNews";
+import { getRelatedArticles } from "@/app/lib/getRelatedArticles"; // <-- new import
 import { urlFor } from "@/app/lib/sanity.image";
+import TopAdBanner from "@/app/TopAdBanner";
 import { PortableText } from "@portabletext/react";
-import { Calendar, Clock, MapPin, RefreshCw, User } from "lucide-react";
+import { Calendar, MapPin, RefreshCw, User } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import LiveBadge from "../_components/LiveBadge";
 import RelatedArticles from "../_components/RelatedArticles";
 import ShareButtons from "../_components/ShareButtons";
-import TopAdBanner from "@/app/TopAdBanner";
-import Link from "next/link";
-import { BreakingNewsItem } from "@/app/lib/getBreakingNews";
+import { RelatedArticle } from "@/app/components/types";
 
 interface BreakingNewsPageProps {
   params: {
@@ -40,89 +46,34 @@ export async function generateMetadata({ params }: BreakingNewsPageProps) {
   };
 }
 
-async function getBreakingNewsBySlug(slug: string) {
-  const query = `
-    *[_type == "breakingNews" && slug.current == $slug][0] {
-      _id,
-      headline,
-      fullTitle,
-      excerpt,
-      "slug": slug.current,
-      content,
-      featuredImage,
-      publishedAt,
-      updatedAt,
-      category,
-      location,
-      author->{
-        name,
-        "image": image.asset->url,
-        bio
-      },
-      sources,
-      isActive,
-      priority,
-      expiresAt,
-      tags
-    }
-  `;
-
-  const news = await sanityClient.fetch(query, { slug });
-  return news;
-}
-
-async function getLatestBreakingNews() {
-  const query = `
-    *[_type == "breakingNews" && isActive == true] | order(publishedAt desc)[0...6] {
-      _id,
-      headline,
-      "slug": slug.current,
-      publishedAt,
-      category
-    }
-  `;
-
-  const news = await sanityClient.fetch(query);
-  return news;
-}
-
 export default async function BreakingNewsPage({
   params,
 }: BreakingNewsPageProps) {
   const news = await getBreakingNewsBySlug(params.slug);
-  const latestNews = await getLatestBreakingNews();
 
   if (!news) {
     notFound();
   }
 
+  // Safely coerce category into a string for display and for fetch
+  const categoryString =
+    typeof news.category === "string"
+      ? news.category
+      : // common Sanity shapes: { title } or { name } or { slug: { current } }
+        (news.category?.title ??
+        news.category?.name ??
+        news.category?.slug?.current ??
+        undefined);
+
+  // Fetch related articles in parent (server) — Option A approach
+  const relatedArticles = await getRelatedArticles(
+    news.slug,
+    categoryString,
+    3
+  );
+
   const publishedDate = new Date(news.publishedAt);
   const updatedDate = news.updatedAt ? new Date(news.updatedAt) : null;
-
-  const formatDate = (date: Date) => {
-    return date.toLocaleDateString("en-KE", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
-
-  const formatTimeAgo = (date: Date) => {
-    const now = new Date();
-    const diffInHours = Math.floor(
-      (now.getTime() - date.getTime()) / (1000 * 60 * 60)
-    );
-
-    if (diffInHours < 1) {
-      return "Just now";
-    } else if (diffInHours < 24) {
-      return `${diffInHours}h ago`;
-    } else {
-      return `${Math.floor(diffInHours / 24)}d ago`;
-    }
-  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -167,9 +118,9 @@ export default async function BreakingNewsPage({
                     <span className="font-semibold text-sm uppercase tracking-wide">
                       BREAKING NEWS
                     </span>
-                    {news.category && (
+                    {categoryString && (
                       <span className="bg-white/20 px-2 py-1 rounded text-xs font-medium">
-                        {news.category}
+                        {categoryString}
                       </span>
                     )}
                   </div>
@@ -301,11 +252,11 @@ export default async function BreakingNewsPage({
               <NewsletterSignup />
             </div>
 
-            {/* Related Articles */}
+            {/* Related Articles (presentational) */}
             <div className="mt-8">
               <RelatedArticles
                 currentSlug={news.slug}
-                category={news.category}
+                relatedArticles={relatedArticles as RelatedArticle[]} // type assertion if needed
               />
             </div>
           </div>
@@ -313,70 +264,9 @@ export default async function BreakingNewsPage({
           {/* Sidebar - Right Column */}
           <div className="lg:col-span-4 space-y-6">
             {/* Latest Breaking News Sidebar */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h2 className="text-xl font-bold text-gray-900 mb-4 pb-3 border-b border-gray-200">
-                Latest Breaking News
-              </h2>
-              <div className="space-y-4">
-                {latestNews.map((item: BreakingNewsItem) => (
-                  <a
-                    key={item._id}
-                    href={`/news/${item.slug}`}
-                    className="block group hover:bg-gray-50 p-3 rounded-lg transition-colors"
-                  >
-                    <div className="flex items-start space-x-3">
-                      <div className="flex-shrink-0 w-2 h-2 bg-red-600 rounded-full mt-2"></div>
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-medium text-gray-900 group-hover:text-blue-600 line-clamp-2 leading-snug">
-                          {item.headline}
-                        </h3>
-                        <div className="flex items-center space-x-2 mt-1 text-xs text-gray-500">
-                          <Clock className="h-3 w-3" />
-                          <span>
-                            {formatTimeAgo(
-                              new Date(item.publishedAt ?? Date.now())
-                            )}
-                          </span>
-                          {item.category && (
-                            <>
-                              <span>•</span>
-                              <span className="bg-gray-100 px-2 py-0.5 rounded">
-                                {item.category}
-                              </span>
-                            </>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </a>
-                ))}
-              </div>
-            </div>
-
+            <LatestBreakingNews />
             {/* Trending News Sidebar */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h2 className="text-xl font-bold text-gray-900 mb-4 pb-3 border-b border-gray-200">
-                Trending Now
-              </h2>
-              <div className="space-y-4">
-                {latestNews
-                  .slice(0, 4)
-                  .map((item: BreakingNewsItem, index: number) => (
-                    <a
-                      key={item._id}
-                      href={`/news/${item.slug}`}
-                      className="flex items-center space-x-3 group hover:bg-gray-50 p-3 rounded-lg transition-colors"
-                    >
-                      <span className="flex-shrink-0 w-6 h-6 bg-blue-600 text-white rounded-full text-sm font-bold flex items-center justify-center">
-                        {index + 1}
-                      </span>
-                      <h3 className="font-medium text-gray-900 group-hover:text-blue-600 line-clamp-2 text-sm leading-snug">
-                        {item.headline}
-                      </h3>
-                    </a>
-                  ))}
-              </div>
-            </div>
+            <TrendingNews />
 
             {/* Sidebar Ad */}
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">

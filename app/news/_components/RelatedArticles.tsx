@@ -1,29 +1,30 @@
-import { getRelatedArticles } from "@/app/lib/getRelatedArticles";
+import { RelatedArticle } from "@/app/components/types";
 import { ArticleCard } from "./ArticleCard";
 
 interface RelatedArticlesProps {
   currentSlug: string;
-  category?: string;
+  relatedArticles: RelatedArticle[];
   limit?: number;
 }
 
-export default async function RelatedArticles({
+export default function RelatedArticles({
   currentSlug,
-  category,
+  relatedArticles,
   limit = 3,
 }: RelatedArticlesProps) {
-  const relatedArticles = await getRelatedArticles(
-    currentSlug,
-    category,
-    limit
-  );
+  if (!relatedArticles || relatedArticles.length === 0) return null;
 
-  if (!relatedArticles.length) return null;
+  // Exclude current article
+  const filtered = relatedArticles
+    .filter((a) => a.slug !== currentSlug)
+    .slice(0, limit);
+
+  if (filtered.length === 0) return null;
 
   return (
     <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-      {relatedArticles.map((article) => (
-        <ArticleCard key={article._id} article={article} />
+      {filtered.map((article) => (
+        <ArticleCard key={article.id} article={article} />
       ))}
     </div>
   );

@@ -44,35 +44,48 @@ export async function getBreakingNews(): Promise<BreakingNewsItem[]> {
 }
 
 // Add this new function to get single news by slug
-export async function getBreakingNewsBySlug(
-  slug: string
-): Promise<BreakingNewsItem | null> {
-  try {
-    const news = await sanityClient.fetch(
-      `
-      *[_type == "breakingNews" && slug.current == $slug][0] {
-        headline,
-        "slug": slug.current,
-        category,
-        publishedAt,
-        isActive,
-        expiresAt
-      }
-    `,
-      { slug }
-    );
+export async function getBreakingNewsBySlug(slug: string) {
+  const query = `
+    *[_type == "breakingNews" && slug.current == $slug][0] {
+      _id,
+      headline,
+      fullTitle,
+      excerpt,
+      "slug": slug.current,
+      content,
+      featuredImage,
+      publishedAt,
+      updatedAt,
+      category,
+      location,
+      author->{
+        name,
+        "image": image.asset->url,
+        bio
+      },
+      sources,
+      isActive,
+      priority,
+      expiresAt,
+      tags
+    }
+  `;
 
-    if (!news) return null;
+  const news = await sanityClient.fetch(query, { slug });
+  return news;
+}
 
-    return {
-      headline: news.headline,
-      slug: news.slug,
-      href: `/news/${news.slug}`,
-      category: news.category,
-      publishedAt: news.publishedAt,
-    };
-  } catch (error) {
-    console.error("Error fetching breaking news by slug:", error);
-    return null;
-  }
+export async function getLatestBreakingNews() {
+  const query = `
+    *[_type == "breakingNews" && isActive == true] | order(publishedAt desc)[0...6] {
+      _id,
+      headline,
+      "slug": slug.current,
+      publishedAt,
+      category
+    }
+  `;
+
+  const news = await sanityClient.fetch(query);
+  return news;
 }
