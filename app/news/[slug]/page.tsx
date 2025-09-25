@@ -1,12 +1,16 @@
+import NewsletterSignup from "@/app/components/NewsletterSignup";
 import { sanityClient } from "@/app/lib/sanity.client";
 import { urlFor } from "@/app/lib/sanity.image";
 import { PortableText } from "@portabletext/react";
-import { Calendar, MapPin, RefreshCw } from "lucide-react";
+import { Calendar, Clock, MapPin, RefreshCw, User } from "lucide-react";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import LiveBadge from "../_components/LiveBadge";
 import RelatedArticles from "../_components/RelatedArticles";
 import ShareButtons from "../_components/ShareButtons";
+import TopAdBanner from "@/app/TopAdBanner";
+import Link from "next/link";
+import { BreakingNewsItem } from "@/app/lib/getBreakingNews";
 
 interface BreakingNewsPageProps {
   params: {
@@ -58,7 +62,8 @@ async function getBreakingNewsBySlug(slug: string) {
       sources,
       isActive,
       priority,
-      expiresAt
+      expiresAt,
+      tags
     }
   `;
 
@@ -66,10 +71,26 @@ async function getBreakingNewsBySlug(slug: string) {
   return news;
 }
 
+async function getLatestBreakingNews() {
+  const query = `
+    *[_type == "breakingNews" && isActive == true] | order(publishedAt desc)[0...6] {
+      _id,
+      headline,
+      "slug": slug.current,
+      publishedAt,
+      category
+    }
+  `;
+
+  const news = await sanityClient.fetch(query);
+  return news;
+}
+
 export default async function BreakingNewsPage({
   params,
 }: BreakingNewsPageProps) {
   const news = await getBreakingNewsBySlug(params.slug);
+  const latestNews = await getLatestBreakingNews();
 
   if (!news) {
     notFound();
@@ -81,189 +102,287 @@ export default async function BreakingNewsPage({
   const formatDate = (date: Date) => {
     return date.toLocaleDateString("en-KE", {
       year: "numeric",
-      month: "long",
+      month: "short",
       day: "numeric",
       hour: "2-digit",
       minute: "2-digit",
     });
   };
 
+  const formatTimeAgo = (date: Date) => {
+    const now = new Date();
+    const diffInHours = Math.floor(
+      (now.getTime() - date.getTime()) / (1000 * 60 * 60)
+    );
+
+    if (diffInHours < 1) {
+      return "Just now";
+    } else if (diffInHours < 24) {
+      return `${diffInHours}h ago`;
+    } else {
+      return `${Math.floor(diffInHours / 24)}d ago`;
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-white">
-      {/* Hero Section */}
-      <div className="relative bg-gradient-to-br from-gray-900 to-gray-800 text-white">
-        <div className="absolute inset-0 bg-black/40"></div>
-
-        <div className="container mx-auto px-4 py-20 relative z-10">
-          <div className="max-w-4xl mx-auto">
-            {/* Breaking News Badge */}
-            <div className="flex items-center justify-center mb-6">
-              <LiveBadge />
-              <span className="ml-3 text-sm font-medium bg-red-600 px-3 py-1 rounded-full">
-                BREAKING NEWS
-              </span>
-              {news.category && (
-                <span className="ml-2 text-sm font-medium bg-blue-600 px-3 py-1 rounded-full">
-                  {news.category.toUpperCase()}
-                </span>
-              )}
-            </div>
-
-            {/* Main Title */}
-            <h1 className="text-4xl md:text-6xl font-bold text-center leading-tight mb-6">
-              {news.fullTitle}
-            </h1>
-
-            {/* Excerpt */}
-            {news.excerpt && (
-              <p className="text-xl text-gray-300 text-center max-w-3xl mx-auto mb-8 leading-relaxed">
-                {news.excerpt}
-              </p>
-            )}
-
-            {/* Meta Information */}
-            <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-8 text-sm text-gray-300">
-              <div className="flex items-center">
-                <Calendar className="h-4 w-4 mr-2" />
-                Published: {formatDate(publishedDate)}
-              </div>
-
-              {updatedDate && (
-                <div className="flex items-center">
-                  <RefreshCw className="h-4 w-4 mr-2" />
-                  Updated: {formatDate(updatedDate)}
-                </div>
-              )}
-
-              {news.location && (
-                <div className="flex items-center">
-                  <MapPin className="h-4 w-4 mr-2" />
-                  {news.location}
-                </div>
-              )}
-            </div>
-          </div>
+    <div className="min-h-screen bg-gray-50">
+      {/* Top Ad Banner */}
+      <div className="bg-white border-b">
+        <div className="container mx-auto px-4">
+          <TopAdBanner />
         </div>
       </div>
 
-      {/* Featured Image */}
-      {news.featuredImage && (
-        <div className="container mx-auto px-4 py-8">
-          <div className="max-w-4xl mx-auto">
-            <div className="relative aspect-video rounded-xl overflow-hidden shadow-2xl">
-              <Image
-                src={urlFor(news.featuredImage).url()}
-                alt={news.featuredImage.alt || news.fullTitle}
-                fill
-                className="object-cover"
-                priority
-              />
-              {news.featuredImage.caption && (
-                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-6">
-                  <p className="text-white text-sm">
-                    {news.featuredImage.caption}
-                  </p>
+      {/* Main Content */}
+      <div className="container mx-auto px-4 py-6">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          {/* Main Article Content - Left Column */}
+          <div className="lg:col-span-8">
+            {/* Breadcrumb */}
+            <nav className="mb-6 flex items-center space-x-2 text-sm text-gray-600">
+              <Link href="/" className="hover:text-blue-600">
+                Home
+              </Link>
+              <span>/</span>
+              <Link href="/news" className="hover:text-blue-600">
+                News
+              </Link>
+              <span>/</span>
+              <Link href="/news" className="hover:text-blue-600">
+                Breaking News
+              </Link>
+              <span>/</span>
+              <span className="text-gray-900 font-medium truncate">
+                {news.headline}
+              </span>
+            </nav>
+
+            {/* Article Header */}
+            <article className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+              {/* Breaking News Header */}
+              <div className="bg-red-600 text-white px-6 py-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <LiveBadge />
+                    <span className="font-semibold text-sm uppercase tracking-wide">
+                      BREAKING NEWS
+                    </span>
+                    {news.category && (
+                      <span className="bg-white/20 px-2 py-1 rounded text-xs font-medium">
+                        {news.category}
+                      </span>
+                    )}
+                  </div>
+                  <div className="text-sm opacity-90">
+                    {formatTimeAgo(publishedDate)}
+                  </div>
                 </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Article Content */}
-      <article className="container mx-auto px-4 py-12">
-        <div className="max-w-3xl mx-auto">
-          {/* Author Info */}
-          {news.author && (
-            <div className="flex items-center space-x-4 mb-8 p-6 bg-gray-50 rounded-xl">
-              <div className="relative w-12 h-12 rounded-full overflow-hidden">
-                <Image
-                  src={news.author.image}
-                  alt={news.author.name}
-                  fill
-                  className="object-cover"
-                />
               </div>
-              <div>
-                <p className="font-semibold text-gray-900">
-                  {news.author.name}
-                </p>
-                <p className="text-sm text-gray-600">
-                  Senior News Correspondent
-                </p>
-              </div>
-            </div>
-          )}
 
-          {/* Article Body */}
-          <div className="prose prose-lg max-w-none">
-            <div className="text-gray-700 leading-relaxed">
-              <PortableText value={news.content} />
-            </div>
+              {/* Article Content */}
+              <div className="p-6">
+                {/* Title */}
+                <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4 leading-tight">
+                  {news.fullTitle}
+                </h1>
 
-            {/* Sources */}
-            {news.sources && news.sources.length > 0 && (
-              <div className="mt-12 p-6 bg-gray-50 rounded-xl">
-                <h3 className="font-semibold text-gray-900 mb-4">Sources</h3>
-                <ul className="space-y-2 text-sm text-gray-600">
-                  {news.sources.map((source: string, index: number) => (
-                    <li key={index}>• {source}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
+                {/* Excerpt */}
+                {news.excerpt && (
+                  <p className="text-lg text-gray-700 mb-6 leading-relaxed font-medium">
+                    {news.excerpt}
+                  </p>
+                )}
 
-            {/* Article Footer */}
-            <div className="mt-12 pt-8 border-t border-gray-200">
-              <div className="flex flex-col sm:flex-row items-center justify-between space-y-4 sm:space-y-0">
-                <div className="text-sm text-gray-600">
-                  <p>Published: {formatDate(publishedDate)}</p>
+                {/* Meta Information */}
+                <div className="flex flex-wrap items-center gap-4 mb-6 text-sm text-gray-600 border-b border-gray-100 pb-6">
+                  <div className="flex items-center space-x-1">
+                    <Calendar className="h-4 w-4" />
+                    <span>{formatDate(publishedDate)}</span>
+                  </div>
+
                   {updatedDate && (
-                    <p>Last updated: {formatDate(updatedDate)}</p>
+                    <div className="flex items-center space-x-1">
+                      <RefreshCw className="h-4 w-4" />
+                      <span>Updated {formatTimeAgo(updatedDate)}</span>
+                    </div>
+                  )}
+
+                  {news.location && (
+                    <div className="flex items-center space-x-1">
+                      <MapPin className="h-4 w-4" />
+                      <span>{news.location}</span>
+                    </div>
+                  )}
+
+                  {news.author && (
+                    <div className="flex items-center space-x-1">
+                      <User className="h-4 w-4" />
+                      <span className="font-medium">{news.author.name}</span>
+                    </div>
                   )}
                 </div>
 
-                <ShareButtons
-                  title={news.fullTitle}
-                  url={`https://kurunzi.news/news/${news.slug}`}
-                />
+                {/* Featured Image */}
+                {news.featuredImage && (
+                  <div className="mb-8">
+                    <div className="relative aspect-video rounded-lg overflow-hidden">
+                      <Image
+                        src={urlFor(news.featuredImage).url()}
+                        alt={news.featuredImage.alt || news.fullTitle}
+                        fill
+                        className="object-cover"
+                        priority
+                      />
+                    </div>
+                    {news.featuredImage.caption && (
+                      <p className="text-sm text-gray-600 mt-3 text-center">
+                        {news.featuredImage.caption}
+                      </p>
+                    )}
+                  </div>
+                )}
+
+                {/* Share Buttons */}
+                <div className="flex items-center justify-between mb-8 p-4 bg-gray-50 rounded-lg">
+                  <span className="text-sm font-medium text-gray-700">
+                    Share this story:
+                  </span>
+                  <ShareButtons
+                    title={news.fullTitle}
+                    url={`https://kurunzi.news/news/${news.slug}`}
+                  />
+                </div>
+
+                {/* Article Body */}
+                <div className="prose prose-lg max-w-none">
+                  <div className="text-gray-800 leading-8 text-base">
+                    <PortableText value={news.content} />
+                  </div>
+                </div>
+
+                {/* Tags */}
+                {news.tags && news.tags.length > 0 && (
+                  <div className="mt-8 pt-6 border-t border-gray-200">
+                    <div className="flex flex-wrap gap-2">
+                      {news.tags.map((tag: string, index: number) => (
+                        <a
+                          key={index}
+                          href={`/tag/${tag.toLowerCase()}`}
+                          className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1 rounded-full text-sm transition-colors"
+                        >
+                          #{tag}
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Sources */}
+                {news.sources && news.sources.length > 0 && (
+                  <div className="mt-8 p-4 bg-blue-50 rounded-lg border border-blue-100">
+                    <h3 className="font-semibold text-blue-900 mb-3">
+                      Sources
+                    </h3>
+                    <ul className="space-y-2 text-sm text-blue-800">
+                      {news.sources.map((source: string, index: number) => (
+                        <li key={index} className="flex items-start">
+                          <span className="text-blue-600 mr-2">•</span>
+                          {source}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
               </div>
+            </article>
+
+            {/* Newsletter Signup */}
+            <div className="mt-8">
+              <NewsletterSignup />
+            </div>
+
+            {/* Related Articles */}
+            <div className="mt-8">
+              <RelatedArticles
+                currentSlug={news.slug}
+                category={news.category}
+              />
             </div>
           </div>
-        </div>
-      </article>
 
-      {/* Related Articles */}
-      <div className="bg-gray-50 py-16">
-        <div className="container mx-auto px-4">
-          <div className="max-w-6xl mx-auto">
-            <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">
-              More Breaking News
-            </h2>
-            <RelatedArticles currentSlug={news.slug} category={news.category} />
-          </div>
-        </div>
-      </div>
+          {/* Sidebar - Right Column */}
+          <div className="lg:col-span-4 space-y-6">
+            {/* Latest Breaking News Sidebar */}
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+              <h2 className="text-xl font-bold text-gray-900 mb-4 pb-3 border-b border-gray-200">
+                Latest Breaking News
+              </h2>
+              <div className="space-y-4">
+                {latestNews.map((item: BreakingNewsItem) => (
+                  <a
+                    key={item._id}
+                    href={`/news/${item.slug}`}
+                    className="block group hover:bg-gray-50 p-3 rounded-lg transition-colors"
+                  >
+                    <div className="flex items-start space-x-3">
+                      <div className="flex-shrink-0 w-2 h-2 bg-red-600 rounded-full mt-2"></div>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-medium text-gray-900 group-hover:text-blue-600 line-clamp-2 leading-snug">
+                          {item.headline}
+                        </h3>
+                        <div className="flex items-center space-x-2 mt-1 text-xs text-gray-500">
+                          <Clock className="h-3 w-3" />
+                          <span>
+                            {formatTimeAgo(
+                              new Date(item.publishedAt ?? Date.now())
+                            )}
+                          </span>
+                          {item.category && (
+                            <>
+                              <span>•</span>
+                              <span className="bg-gray-100 px-2 py-0.5 rounded">
+                                {item.category}
+                              </span>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </a>
+                ))}
+              </div>
+            </div>
 
-      {/* Newsletter Signup */}
-      <div className="bg-gradient-to-r from-blue-600 to-blue-800 py-16">
-        <div className="container mx-auto px-4">
-          <div className="max-w-2xl mx-auto text-center">
-            <h3 className="text-2xl font-bold text-white mb-4">
-              Stay Informed with Breaking News
-            </h3>
-            <p className="text-blue-100 mb-6">
-              Get instant alerts on major developments as they happen
-            </p>
-            <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
-              <input
-                type="email"
-                placeholder="Enter your email"
-                className="flex-1 px-4 py-3 rounded-lg border border-blue-300 focus:outline-none focus:ring-2 focus:ring-white"
-              />
-              <button className="bg-white text-blue-600 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
-                Subscribe to Alerts
-              </button>
+            {/* Trending News Sidebar */}
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+              <h2 className="text-xl font-bold text-gray-900 mb-4 pb-3 border-b border-gray-200">
+                Trending Now
+              </h2>
+              <div className="space-y-4">
+                {latestNews
+                  .slice(0, 4)
+                  .map((item: BreakingNewsItem, index: number) => (
+                    <a
+                      key={item._id}
+                      href={`/news/${item.slug}`}
+                      className="flex items-center space-x-3 group hover:bg-gray-50 p-3 rounded-lg transition-colors"
+                    >
+                      <span className="flex-shrink-0 w-6 h-6 bg-blue-600 text-white rounded-full text-sm font-bold flex items-center justify-center">
+                        {index + 1}
+                      </span>
+                      <h3 className="font-medium text-gray-900 group-hover:text-blue-600 line-clamp-2 text-sm leading-snug">
+                        {item.headline}
+                      </h3>
+                    </a>
+                  ))}
+              </div>
+            </div>
+
+            {/* Sidebar Ad */}
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+              <div className="w-full h-60 bg-gray-200 flex items-center justify-center">
+                <span className="text-gray-500">Ad Space</span>
+              </div>
             </div>
           </div>
         </div>
