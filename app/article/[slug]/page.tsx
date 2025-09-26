@@ -59,7 +59,7 @@ export default async function ArticlePage({
 }: {
   params: { slug: string };
 }) {
-  const { slug } = params;
+  const { slug } = await params;
 
   // Fetch article by slug
   const rawArticle = await sanityClient.fetch(articleQuery, { slug });

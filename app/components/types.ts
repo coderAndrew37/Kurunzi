@@ -113,4 +113,10 @@ export interface RelatedArticle {
   date?: string;
   readTime?: number;
   views?: number;
+  publishedAt: string;
+  fullTitle: string;
+  featuredImage?: {
+    url: string;
+    alt?: string;
+  } | null;
 }

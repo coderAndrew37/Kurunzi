@@ -4,7 +4,7 @@ import { Calendar, Clock, Eye } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { urlFor } from "@/app/lib/sanity.image";
-import type { RelatedArticle } from "@/app/lib/getRelatedArticles";
+import { RelatedArticle } from "@/app/components/types";
 
 export function ArticleCard({ article }: { article: RelatedArticle }) {
   const publishedDate = new Date(article.publishedAt).toLocaleDateString(

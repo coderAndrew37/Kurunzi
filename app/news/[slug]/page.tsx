@@ -1,4 +1,3 @@
-// File: app/news/[slug]/page.tsx
 import LatestBreakingNews from "@/app/components/LatestBreakingNews";
 import NewsletterSignup from "@/app/components/NewsletterSignup";
 import TrendingNews from "@/app/components/TrendingNews";
