@@ -10,6 +10,7 @@ import { getPopularTags } from "./lib/getPopularTags";
 import { NavItem } from "./types/navigation";
 import BreakingNewsTicker from "./components/BreakingNewsTicker";
 import Header from "./navbar/NavBar";
+import EnhancedPageTransition from "./components/EnhancedPageTransition";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,7 +33,6 @@ export const metadata: Metadata = {
   description: "Independent Kenyan news, politics, sports and more",
 };
 
-// ✅ Async layout so we can fetch from Sanity
 export default async function RootLayout({
   children,
 }: Readonly<{
@@ -59,6 +59,9 @@ export default async function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        {/* Page Transition Component */}
+        <EnhancedPageTransition />
+
         <TopAdBanner />
         <Header menuItems={menuItems} popularTags={popularTags} />
         <BreakingNewsTicker />
