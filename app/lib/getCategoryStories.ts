@@ -84,6 +84,21 @@ export const categoriesWithStoriesQuery = groq`
   }
 `;
 
+export const categoryWithSubcategoriesQuery = groq`
+  *[_type == "category" && slug.current == $slug][0] {
+    _id,
+    title,
+    description,
+    "slug": slug.current,
+    "subcategories": subcategories[]->{
+      _id,
+      title,
+      description,
+      "slug": slug.current
+    }
+  }
+`;
+
 // Fetch latest stories by category + subcategory
 export const subcategoryStoriesQuery = groq`
   *[
