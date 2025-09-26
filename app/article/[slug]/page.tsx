@@ -65,7 +65,7 @@ const trendingArticlesQuery = `*[_type == "article" && slug.current != $currentS
     publishedAt,
     "categories": categories[]->{
       title
-    }
+    },
     "img": mainImage
 }`;
 
