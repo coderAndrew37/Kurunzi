@@ -1,6 +1,7 @@
 import { Author, Category, Story, Subcategory } from "@/app/components/types";
+import Image from "next/image";
+import Link from "next/link";
 import ArticleCard from "../[category]/_components/ArticleCard";
-import Sidebar from "../components/Sidebar";
 import {
   searchArticlesQuery,
   searchAuthorsQuery,
@@ -9,8 +10,6 @@ import {
   searchTagsQuery,
 } from "../lib/getSearchResults";
 import { sanityClient } from "../lib/sanity.client";
-import Image from "next/image";
-import Link from "next/link";
 import { urlFor } from "../lib/sanity.image";
 
 interface SearchPageProps {
@@ -186,8 +185,6 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
               <li key="search-tip-4">• Try related terms or synonyms</li>
             </ul>
           </div>
-
-          <Sidebar />
         </div>
       </div>
     </div>

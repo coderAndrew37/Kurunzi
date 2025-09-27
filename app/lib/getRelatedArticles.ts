@@ -21,14 +21,14 @@ export async function getRelatedArticles(
   });
 
   return articles.map((article) => ({
-    id: article._id,
+    id: String(article._id), // ensure string, since your type has `id: string`
     slug: article.slug?.current ?? "",
     title: article.fullTitle || article.headline,
-    excerpt: article.excerpt,
-    img: article.featuredImage ? urlFor(article.featuredImage).url() : null,
-    category: article.category,
-    date: article.publishedAt,
+    img: article.featuredImage ? urlFor(article.featuredImage).url() : "",
+    category: article.category ?? "",
+    date: article.publishedAt ?? "",
     readTime: 3, // fallback
-    views: 0,
+    publishedAt: article.publishedAt ?? "",
+    fullTitle: article.fullTitle ?? "",
   }));
 }

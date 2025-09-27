@@ -7,10 +7,9 @@ import {
   NavigationMenuItem,
   NavigationMenuList,
   NavigationMenuTrigger,
-  NavigationMenuLink,
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
-import { Menu, Search, X, ArrowRight, ChevronRight } from "lucide-react";
+import { ArrowRight, ChevronRight, Menu, Search, X } from "lucide-react";
 import Link from "next/link";
 import { NavItem } from "../types/navigation";
 
@@ -162,34 +161,5 @@ export default function MainNav({
         </Button>
       </div>
     </div>
-  );
-}
-
-// Optional: You can also create a separate ListItem component like in the example
-function NavListItem({
-  title,
-  href,
-  children,
-}: {
-  title: string;
-  href: string;
-  children?: React.ReactNode;
-}) {
-  return (
-    <li>
-      <NavigationMenuLink asChild>
-        <Link
-          href={href}
-          className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-slate-100 focus:bg-slate-100"
-        >
-          <div className="text-sm font-medium leading-none">{title}</div>
-          {children && (
-            <p className="line-clamp-2 text-sm leading-snug text-slate-600">
-              {children}
-            </p>
-          )}
-        </Link>
-      </NavigationMenuLink>
-    </li>
   );
 }

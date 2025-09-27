@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { Story as Article } from "@/app/components/types";
+import { urlFor } from "@/app/lib/sanity.image";
 
 export default function ArticleHeader({ article }: { article: Article }) {
   const categoryTitle = article.category?.title || "General";
@@ -36,9 +37,9 @@ export default function ArticleHeader({ article }: { article: Article }) {
       {/* Author */}
       {article.author && typeof article.author !== "string" && (
         <div className="flex items-center mb-6">
-          {article.author.avatar && (
+          {article.author.image && (
             <Image
-              src={article.author.avatar}
+              src={urlFor(article.author.image).url()}
               alt={article.author.name}
               width={48}
               height={48}
